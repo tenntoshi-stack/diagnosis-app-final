@@ -1,0 +1,9 @@
+### 新規診断セットの作成 (POSTリクエスト)
+POST http://localhost:5000/api/diagnoses
+Content-Type: application/json
+
+{
+  "title": "新しい診断セットのタイトル"
+}
+### 診断セットの削除 (DELETEリクエスト)
+DELETE http://localhost:5000/api/diagnoses/2
