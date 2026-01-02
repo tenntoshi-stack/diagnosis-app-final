@@ -13,8 +13,8 @@ const DiagnosisApp: React.FC = () => {
 
   // 1. 最初に診断セットの基本情報（トップ画面用）を取得
   useEffect(() => {
-    fetch(`http://localhost:5000/api/diagnoses/${id}`)
-      .then(res => res.json())
+fetch(https://diagnosis-app-final.onrender.com/api/diagnoses/${id})
+    .then(res => res.json())
       .then(data => {
         setDiagnosisInfo(data);
         setLoading(false);
@@ -24,8 +24,8 @@ const DiagnosisApp: React.FC = () => {
 
   // 2. 診断を開始する（最初の質問を取得）
   const startDiagnosis = () => {
-    fetch(`http://localhost:5000/api/diagnoses/${id}/questions/first`)
-      .then(res => res.json())
+fetch(https://diagnosis-app-final.onrender.com/api/diagnoses/${id}/questions/first)
+    .then(res => res.json())
       .then(data => {
         setCurrentQuestion(data);
         setIsStarted(true);
@@ -36,16 +36,16 @@ const DiagnosisApp: React.FC = () => {
   const handleAnswer = (nextId: number, label: string) => {
     if (nextId === 0) {
       // 結果を表示（ラベルで検索）
-      fetch(`http://localhost:5000/api/diagnoses/${id}/results`)
-        .then(res => res.json())
+fetch(https://diagnosis-app-final.onrender.com/api/diagnoses/${id}/results)
+      .then(res => res.json())
         .then(results => {
           const found = results.find((r: any) => r.type_label === label);
           setResult(found);
         });
     } else {
       // 次の質問を表示
-      fetch(`http://localhost:5000/api/questions/detail/${nextId}`)
-        .then(res => res.json())
+fetch(https://diagnosis-app-final.onrender.com/api/questions/detail/${nextId})
+      .then(res => res.json())
         .then(data => setCurrentQuestion(data));
     }
   };
@@ -114,8 +114,8 @@ const DiagnosisApp: React.FC = () => {
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
   useEffect(() => {
-    fetch(`http://localhost:5000/api/questions/${questionId}/choices`)
-      .then(res => res.json())
+fetch(https://www.google.com/search?q=https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices)
+    .then(res => res.json())
       .then(data => setChoices(data));
   }, [questionId]);
 
