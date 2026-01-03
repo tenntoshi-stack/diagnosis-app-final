@@ -10,28 +10,28 @@ const DiagnosisApp: React.FC = () => {
   const [isStarted, setIsStarted] = useState(false); 
   const [loading, setLoading] = useState(true);
 
-// 1. 診断セットの情報を取得
+  // 1. 診断セットの情報を取得
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
       .then(data => {
-        console.log("届いたデータ:", data); // 確認用
-        
-        // データの名前が違っても動くように予備を作る
+        console.log("届いたデータ詳細:", data);
+        // どんな名前でデータが来ても、diagnosisInfoを「空ではない状態」にする
         setDiagnosisInfo({
           ...data,
-          name: data.name || data.title || "診断タイトル",
-          description: data.description || "",
-          image_url: data.image_url || data.image
+          displayTitle: data.name || data.title || "無題の診断"
         });
-        
-        setLoading(false);
+        setLoading(false); // 通信成功なのでローディング終了
       })
       .catch(err => {
         console.error("データ取得エラー:", err);
-        setLoading(false);
+        setLoading(false); // エラーでもローディングは終了させる
       });
   }, [id]);
   // 2. 診断を開始する
@@ -73,9 +73,9 @@ const DiagnosisApp: React.FC = () => {
   if (!isStarted && diagnosisInfo) {
     return (
       <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '20px', backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-        {/* name または title を表示 */}
+        {/* displayTitle を使うように変更 */}
         <h1 style={{ fontSize: '1.6em', color: '#333', marginBottom: '20px' }}>
-          {diagnosisInfo.name}
+          {diagnosisInfo.displayTitle}
         </h1>
         {diagnosisInfo.image_url && (
           <img src={diagnosisInfo.image_url} alt="Top" style={{ width: '100%', borderRadius: '15px', marginBottom: '20px', objectFit: 'cover' }} />
