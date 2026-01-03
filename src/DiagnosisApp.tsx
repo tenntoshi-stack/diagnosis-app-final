@@ -53,8 +53,15 @@ const DiagnosisApp: React.FC = () => {
     }
   };
 
-  if (loading) return <div style={{ textAlign: 'center', padding: '50px' }}>読み込み中...</div>;
+// loadingがtrue、かつ diagnosisInfo がまだ空の場合だけ「読み込み中」を出す
+  if (loading && !diagnosisInfo) {
+    return <div style={{ textAlign: 'center', padding: '50px' }}>読み込み中... (サーバーからの応答を待っています)</div>;
+  }
 
+  // もしデータ取得に失敗して diagnosisInfo が無い場合
+  if (!diagnosisInfo) {
+    return <div style={{ textAlign: 'center', padding: '50px' }}>データが見つかりませんでした。URLを確認してください。</div>;
+  }
   // --- A. 診断トップ画面 ---
   if (!isStarted && diagnosisInfo) {
     return (
