@@ -24,7 +24,7 @@ function App() {
 
   // 診断一覧の取得
   const fetchDiagnoses = () => {
-    fetch('http://localhost:5000/api/diagnoses')
+    fetch('https://diagnosis-app-final.onrender.com/api/diagnoses')
       .then(res => res.json())
       .then(data => {
         setDiagnoses(data);
@@ -55,7 +55,7 @@ function App() {
     e.preventDefault();
     if (!newName.trim()) return;
 
-    fetch('http://localhost:5000/api/diagnoses', {
+    fetch('https://diagnosis-app-final.onrender.com/api/diagnoses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -77,7 +77,7 @@ function App() {
   // 削除関数
   const deleteDiagnosis = (id: number) => {
     if (!confirm("本当に削除しますか？関連する質問データはadmin2側で管理してください。")) return;
-    fetch(`http://localhost:5000/api/diagnoses/${id}`, { method: 'DELETE' })
+    fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`, { method: 'DELETE' })
     .then(() => fetchDiagnoses())
     .catch(err => console.error("削除エラー:", err));
   };
