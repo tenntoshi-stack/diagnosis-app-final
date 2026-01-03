@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react'
 
 interface DiagnosisSet {
   id: number;
-  name: string;        // server.jsのDBカラム名に合わせました
-  description: string; // 説明文
-  image_url: string;   // 画像URL
+  name: string;
+  description: string;
+  image_url: string;
   is_public: number;
   created_at: string;
 }
@@ -13,16 +13,13 @@ function App() {
   const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // 入力フォーム用の状態
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
 
-  // 画面切り替え用の状態
   const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisSet | null>(null);
 
-  // 診断一覧の取得
   const fetchDiagnoses = () => {
     fetch('https://diagnosis-app-final.onrender.com/api/diagnoses')
       .then(res => res.json())
@@ -37,20 +34,17 @@ function App() {
     fetchDiagnoses();
   }, []);
 
-  // 詳細画面へ切り替える関数
   const goToEdit = (diagnosis: DiagnosisSet) => {
     setSelectedDiagnosis(diagnosis);
     setViewMode('edit');
   };
 
-  // 一覧画面に戻る関数
   const goBack = () => {
     setSelectedDiagnosis(null);
     setViewMode('list');
     fetchDiagnoses();
   };
 
-  // 診断セットの新規作成
   const createDiagnosis = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
@@ -74,17 +68,13 @@ function App() {
     .catch(err => console.error("作成エラー:", err));
   };
 
-  // 削除関数
   const deleteDiagnosis = (id: number) => {
-    if (!confirm("本当に削除しますか？関連する質問データはadmin2側で管理してください。")) return;
+    if (!confirm("本当に削除しますか？")) return;
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`, { method: 'DELETE' })
     .then(() => fetchDiagnoses())
     .catch(err => console.error("削除エラー:", err));
   };
 
-  // --- 表示の分岐 ---
-
-  // 1. 質問編集画面（詳細画面）
   if (viewMode === 'edit' && selectedDiagnosis) {
     return (
       <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
@@ -104,7 +94,6 @@ function App() {
     );
   }
 
-  // 2. 一覧画面（デフォルト）
   return (
     <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
       <h1>🛠️ 診断システム 管理パネル(Top設定)</h1>
@@ -157,12 +146,13 @@ function App() {
                     <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>
                       内容確認
                     </button>
+                    {/* 👇 ここの閉じカッコ ) を修正しました */}
                     <button 
-    onClick={() => window.open(`https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`, '_blank')
-    style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
-  >
-    質問を編集 (admin2)
-  </button>
+                      onClick={() => window.open(`https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`, '_blank')}
+                      style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      質問を編集 (admin2)
+                    </button>
                     <button onClick={() => deleteDiagnosis(d.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>
                       削除
                     </button>
@@ -174,7 +164,7 @@ function App() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
