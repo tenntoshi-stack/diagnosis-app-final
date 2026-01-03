@@ -79,23 +79,26 @@ const DiagnosisApp: React.FC = () => {
 // --- A. 診断トップ画面（開始前） ---
   if (!isStarted && diagnosisInfo) {
     return (
-      <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '20px', backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-        {/* displayTitle を使うように変更 */}
-        <h1 style={{ fontSize: '1.6em', color: '#333', marginBottom: '20px' }}>
-          {diagnosisInfo.displayTitle}
-        </h1>
-        {diagnosisInfo.image_url && (
-          <img src={diagnosisInfo.image_url} alt="Top" style={{ width: '100%', borderRadius: '15px', marginBottom: '20px', objectFit: 'cover' }} />
-        )}
-        <p style={{ color: '#666', lineHeight: '1.6', marginBottom: '30px', whiteSpace: 'pre-wrap', padding: '0 10px' }}>
-          {diagnosisInfo.description || "あなたにぴったりのメニューを提案します。"}
-        </p>
-        <button 
-          onClick={startDiagnosis}
-          style={{ width: '100%', padding: '18px', backgroundColor: '#222', color: '#fff', border: 'none', borderRadius: '35px', fontSize: '1.2em', fontWeight: 'bold', cursor: 'pointer' }}
-        >
-          診断をはじめる
-        </button>
+      <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
+        <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '30px', backgroundColor: '#fff', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
+          <h1 style={{ fontSize: '1.8em', color: '#444', marginBottom: '20px', fontWeight: 'bold' }}>
+            {diagnosisInfo.displayTitle}
+          </h1>
+          {diagnosisInfo.image_url && (
+            <div style={{ marginBottom: '20px', borderRadius: '20px', overflow: 'hidden' }}>
+              <img src={diagnosisInfo.image_url} alt="Top" style={{ width: '100%', display: 'block' }} />
+            </div>
+          )}
+          <p style={{ color: '#777', lineHeight: '1.8', marginBottom: '30px', fontSize: '1.1em', whiteSpace: 'pre-wrap' }}>
+            {diagnosisInfo.description || "あなたにぴったりのメニューを提案します。"}
+          </p>
+          <button 
+            onClick={startDiagnosis}
+            style={{ width: '100%', padding: '20px', backgroundColor: '#8d6e63', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.2em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(141, 110, 99, 0.4)' }}
+          >
+            診断をはじめる
+          </button>
+        </div>
       </div>
     );
   }
@@ -119,18 +122,21 @@ const DiagnosisApp: React.FC = () => {
     );
   }
 
-  // --- C. 質問表示画面 ---
+// --- C. 質問表示画面 ---
   if (currentQuestion) {
     return (
-      <div style={{ maxWidth: '500px', margin: '40px auto', padding: '20px' }}>
-        <h2 style={{ fontSize: '1.3em', marginBottom: '30px', textAlign: 'center' }}>{currentQuestion.question_text}</h2>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <QuestionChoices questionId={currentQuestion.id} onSelect={handleAnswer} />
+      <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
+        <div style={{ maxWidth: '500px', margin: '40px auto', padding: '30px', backgroundColor: '#fff', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
+          <h2 style={{ fontSize: '1.4em', marginBottom: '30px', textAlign: 'center', color: '#555', lineHeight: '1.5' }}>
+            {currentQuestion.question_text}
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+            <QuestionChoices questionId={currentQuestion.id} onSelect={handleAnswer} />
+          </div>
         </div>
       </div>
     );
   }
-
   return null;
 };
 
@@ -146,14 +152,25 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
   return (
     <>
       {choices.map((c: any) => (
-        <button 
-          key={c.id} 
-          onClick={() => onSelect(c.next_question_id, c.label)}
-          style={{ padding: '15px', border: '1px solid #ddd', borderRadius: '10px', background: '#fff', cursor: 'pointer', fontSize: '1em', textAlign: 'left' }}
-        >
-          {c.choice_text}
-        </button>
-      ))}
+// 選択肢ボタンのデザイン
+<button 
+  key={c.id} 
+  onClick={() => onSelect(c.next_question_id, c.label)}
+  style={{ 
+    padding: '20px', 
+    border: '2px solid #f0f0f0', 
+    borderRadius: '15px', 
+    background: '#fff', 
+    cursor: 'pointer', 
+    fontSize: '1.05em', 
+    textAlign: 'left',
+    transition: '0.2s',
+    color: '#444'
+  }}
+>
+  {c.choice_text}
+</button>
+))}
     </>
   );
 };
