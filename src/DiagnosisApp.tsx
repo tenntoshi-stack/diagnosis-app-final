@@ -104,47 +104,35 @@ const DiagnosisApp: React.FC = () => {
   }
 // --- B. 診断結果画面 ---
   if (result) {
+    // データの名前が違っても動くように予備を作る
+    const resultTitle = result.result_title || result.title || "診断結果";
+    const resultContent = result.result_description || result.content || "あなたにぴったりのメニューが見つかりました。";
+    const resultImage = result.image_url || result.image;
+    const lineUrl = "https://line.me/R/ti/p/@あなたのID"; // 👈 ここを実際のURLに！
+
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
         <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '30px', backgroundColor: '#fff', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
           <h2 style={{ fontSize: '1.2em', color: '#8d6e63', marginBottom: '10px' }}>診断結果</h2>
           <h1 style={{ fontSize: '1.8em', color: '#333', marginBottom: '20px', fontWeight: 'bold' }}>
-            {result.title}
+            {resultTitle}
           </h1>
           
-          {result.image_url && (
+          {resultImage && (
             <div style={{ marginBottom: '20px', borderRadius: '20px', overflow: 'hidden' }}>
-              <img src={result.image_url} alt="Result" style={{ width: '100%', display: 'block' }} />
+              <img src={resultImage} alt="Result" style={{ width: '100%', display: 'block' }} />
             </div>
           )}
 
           <div style={{ textAlign: 'left', backgroundColor: '#fafafa', padding: '20px', borderRadius: '20px', marginBottom: '30px' }}>
             <p style={{ color: '#555', lineHeight: '1.8', fontSize: '1.05em', whiteSpace: 'pre-wrap' }}>
-              {result.content}
+              {resultContent}
             </p>
           </div>
 
-          {/* LINEなどのURLへ飛ばすボタン */}
-          <a 
-            href="https://line.me/R/ti/p/@あなたのLINEのIDなど" // 👈 ここを実際のURLに書き換えてください
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ textDecoration: 'none' }}
-          >
-            <button 
-              style={{ 
-                width: '100%', 
-                padding: '20px', 
-                backgroundColor: '#06C755', // LINE風の緑
-                color: '#fff', 
-                border: 'none', 
-                borderRadius: '50px', 
-                fontSize: '1.2em', 
-                fontWeight: 'bold', 
-                cursor: 'pointer',
-                boxShadow: '0 4px 15px rgba(6, 199, 85, 0.3)' 
-              }}
-            >
+          {/* LINEボタン - 絶対に表示されるように配置 */}
+          <a href={lineUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+            <button style={{ width: '100%', padding: '20px', backgroundColor: '#06C755', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.2em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(6, 199, 85, 0.3)' }}>
               結果をもっと詳しく見る
             </button>
           </a>
@@ -152,7 +140,7 @@ const DiagnosisApp: React.FC = () => {
       </div>
     );
   }
-// --- C. 質問表示画面 ---
+  // --- C. 質問表示画面 ---
   if (currentQuestion) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
