@@ -10,15 +10,23 @@ const DiagnosisApp: React.FC = () => {
   const [isStarted, setIsStarted] = useState(false); 
   const [loading, setLoading] = useState(true);
 
-  // 1. 診断セットの情報を取得
+// 1. 診断セットの情報を取得
   useEffect(() => {
     if (!id) return;
     setLoading(true);
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`)
       .then(res => res.json())
       .then(data => {
-        // data.name などをそのまま使う形に合わせます
-        setDiagnosisInfo(data);
+        console.log("届いたデータ:", data); // 確認用
+        
+        // データの名前が違っても動くように予備を作る
+        setDiagnosisInfo({
+          ...data,
+          name: data.name || data.title || "診断タイトル",
+          description: data.description || "",
+          image_url: data.image_url || data.image
+        });
+        
         setLoading(false);
       })
       .catch(err => {
@@ -26,7 +34,6 @@ const DiagnosisApp: React.FC = () => {
         setLoading(false);
       });
   }, [id]);
-
   // 2. 診断を開始する
   const startDiagnosis = () => {
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}/questions/first`)
@@ -62,12 +69,14 @@ const DiagnosisApp: React.FC = () => {
   if (!diagnosisInfo) {
     return <div style={{ textAlign: 'center', padding: '50px' }}>データが見つかりませんでした。URLを確認してください。</div>;
   }
-  // --- A. 診断トップ画面 ---
+// --- A. 診断トップ画面（開始前） ---
   if (!isStarted && diagnosisInfo) {
     return (
       <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '20px', backgroundColor: '#fff', borderRadius: '20px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}>
-        {/* diagnosisInfo.name に修正 */}
-        <h1 style={{ fontSize: '1.6em', color: '#333', marginBottom: '20px' }}>{diagnosisInfo.name}</h1>
+        {/* name または title を表示 */}
+        <h1 style={{ fontSize: '1.6em', color: '#333', marginBottom: '20px' }}>
+          {diagnosisInfo.name}
+        </h1>
         {diagnosisInfo.image_url && (
           <img src={diagnosisInfo.image_url} alt="Top" style={{ width: '100%', borderRadius: '15px', marginBottom: '20px', objectFit: 'cover' }} />
         )}
@@ -83,7 +92,6 @@ const DiagnosisApp: React.FC = () => {
       </div>
     );
   }
-
   // --- B. 診断結果画面 ---
   if (result) {
     return (
