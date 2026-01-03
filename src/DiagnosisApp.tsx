@@ -10,18 +10,35 @@ const DiagnosisApp: React.FC = () => {
   const [result, setResult] = useState<any>(null); // 診断結果
   const [isStarted, setIsStarted] = useState(false); // 診断が始まったかどうか
   const [loading, setLoading] = useState(true);
+  const [questions, setQuestions] = useState<any[]>([]); // 質問リスト用の状態
 
-  // 1. 最初に診断セットの基本情報（トップ画面用）を取得
+// 1. 診断セットの基本情報と質問リストを同時に取得
   useEffect(() => {
-fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`)
-    .then(res => res.json())
+    if (!id) return;
+
+    setLoading(true);
+    fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`)
+      .then(res => res.json())
       .then(data => {
-        setDiagnosisInfo(data);
+        // 取得したデータ（data）の中に questions という名前で質問リストが入っている前提
+        setDiagnosisInfo({
+          title: data.name || data.title,
+          description: data.description,
+          image: data.image_url
+        });
+
+        // 質問データがあればセットする
+        if (data.questions && data.questions.length > 0) {
+          setQuestions(data.questions); // 質問リストを保持するStateへ
+        }
+        
         setLoading(false);
       })
-      .catch(err => console.error("データ取得エラー:", err));
+      .catch(err => {
+        console.error("データ取得エラー:", err);
+        setLoading(false);
+      });
   }, [id]);
-
   // 2. 診断を開始する（最初の質問を取得）
   const startDiagnosis = () => {
 fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}/questions/first`)
