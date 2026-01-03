@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-
 const DiagnosisApp: React.FC = () => {
-  const { id } = useParams(); 
+  const { id: paramsId } = useParams(); // URLパラメータから取得
   
+  // 予備策：paramsIdが空の場合、URLの末尾から数字を直接抜き取る
+  const id = paramsId || window.location.pathname.split('/').pop();
+
   const [diagnosisInfo, setDiagnosisInfo] = useState<any>(null); 
   const [currentQuestion, setCurrentQuestion] = useState<any>(null); 
   const [result, setResult] = useState<any>(null); 
@@ -12,26 +14,31 @@ const DiagnosisApp: React.FC = () => {
 
   // 1. 診断セットの情報を取得
   useEffect(() => {
-    if (!id) return;
-    setLoading(true);
+    console.log("判定された診断ID:", id); // 👈 IDが正しく認識されているか確認
 
+    if (!id || id === "diagnoses") {
+      // IDが取れていない場合は読み込みを止める
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Network response was not ok');
         return res.json();
       })
       .then(data => {
-        console.log("届いたデータ詳細:", data);
-        // どんな名前でデータが来ても、diagnosisInfoを「空ではない状態」にする
+        console.log("届いたデータ詳細:", data); // 👈 データの中身を確認
         setDiagnosisInfo({
           ...data,
           displayTitle: data.name || data.title || "無題の診断"
         });
-        setLoading(false); // 通信成功なのでローディング終了
+        setLoading(false);
       })
       .catch(err => {
         console.error("データ取得エラー:", err);
-        setLoading(false); // エラーでもローディングは終了させる
+        setLoading(false);
       });
   }, [id]);
   // 2. 診断を開始する
