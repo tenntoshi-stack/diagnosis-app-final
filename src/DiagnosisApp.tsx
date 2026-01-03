@@ -104,16 +104,18 @@ const DiagnosisApp: React.FC = () => {
   }
 // --- B. 診断結果画面 ---
   if (result) {
-    // データの名前が違っても動くように予備を作る
     const resultTitle = result.result_title || result.title || "診断結果";
     const resultContent = result.result_description || result.content || "あなたにぴったりのメニューが見つかりました。";
     const resultImage = result.image_url || result.image;
-    const lineUrl = "https://line.me/R/ti/p/@あなたのID"; // 👈 ここを実際のURLに！
+    
+    // URLの設定（ご自身のURLに書き換えてください）
+    const detailUrl = "https://example.com/details"; // 詳細ページのURL
+    const lineFriendUrl = "https://line.me/R/ti/p/@あなたのID"; // LINE友だち追加のURL
 
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
         <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '30px', backgroundColor: '#fff', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
-          <h2 style={{ fontSize: '1.2em', color: '#8d6e63', marginBottom: '10px' }}>診断結果</h2>
+          <h2 style={{ fontSize: '1.1em', color: '#8d6e63', marginBottom: '10px', fontWeight: 'bold' }}>DIAGNOSIS RESULT</h2>
           <h1 style={{ fontSize: '1.8em', color: '#333', marginBottom: '20px', fontWeight: 'bold' }}>
             {resultTitle}
           </h1>
@@ -124,18 +126,27 @@ const DiagnosisApp: React.FC = () => {
             </div>
           )}
 
-          <div style={{ textAlign: 'left', backgroundColor: '#fafafa', padding: '20px', borderRadius: '20px', marginBottom: '30px' }}>
+          <div style={{ textAlign: 'left', backgroundColor: '#fafafa', padding: '20px', borderRadius: '20px', marginBottom: '30px', border: '1px solid #f0f0f0' }}>
             <p style={{ color: '#555', lineHeight: '1.8', fontSize: '1.05em', whiteSpace: 'pre-wrap' }}>
               {resultContent}
             </p>
           </div>
 
-          {/* LINEボタン - 絶対に表示されるように配置 */}
-          <a href={lineUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-            <button style={{ width: '100%', padding: '20px', backgroundColor: '#06C755', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.2em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(6, 199, 85, 0.3)' }}>
-              結果をもっと詳しく見る
-            </button>
-          </a>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* 1. 結果をもっと詳しく見るボタン（落ち着いた色に変更） */}
+            <a href={detailUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '18px', backgroundColor: '#8d6e63', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(141, 110, 99, 0.2)' }}>
+                結果をもっと詳しく見る
+              </button>
+            </a>
+
+            {/* 2. LINEで友だちになるボタン（LINEカラーの緑） */}
+            <a href={lineFriendUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+              <button style={{ width: '100%', padding: '18px', backgroundColor: '#06C755', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(6, 199, 85, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                LINEで友だちになる
+              </button>
+            </a>
+          </div>
         </div>
       </div>
     );
