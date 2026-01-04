@@ -17,7 +17,7 @@ function App() {
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
-const [newDetailUrl, setNewDetailUrl] = useState('');
+  const [newDetailUrl, setNewDetailUrl] = useState(''); // 追加済み
   const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisSet | null>(null);
 
@@ -56,14 +56,15 @@ const [newDetailUrl, setNewDetailUrl] = useState('');
       body: JSON.stringify({ 
         name: newName, 
         description: newDescription, 
-        image_url: newImageUrl 
-        detail_url: newDetailUrl
+        image_url: newImageUrl, // 👈 ここにカンマを追加しました
+        detail_url: newDetailUrl // 👈 正しく認識されるようになります
       })
     })
     .then(() => {
       setNewName('');
       setNewDescription('');
       setNewImageUrl('');
+      setNewDetailUrl('');
       fetchDiagnoses();
       alert('診断セットを作成しました！');
     })
@@ -87,6 +88,9 @@ const [newDetailUrl, setNewDetailUrl] = useState('');
           <p><strong>説明文:</strong> {selectedDiagnosis.description}</p>
           {selectedDiagnosis.image_url && (
             <p><strong>トップ画像:</strong><br/><img src={selectedDiagnosis.image_url} style={{maxWidth: '200px', marginTop: '10px'}} /></p>
+          )}
+          {selectedDiagnosis.detail_url && (
+            <p><strong>詳細URL:</strong><br/><a href={selectedDiagnosis.detail_url} target="_blank" rel="noreferrer">{selectedDiagnosis.detail_url}</a></p>
           )}
         </div>
         <div style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
@@ -119,15 +123,10 @@ const [newDetailUrl, setNewDetailUrl] = useState('');
             style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
           <input 
-  type="text" value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} 
-  placeholder="「詳しく見る」ボタンの遷移先URLを入力"
-  style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-/>
-          <input 
-  type="text" value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} 
-  placeholder="「詳しく見る」ボタンの遷移先URLを入力"
-  style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-/>
+            type="text" value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} 
+            placeholder="「詳しく見る」ボタンの遷移先URLを入力"
+            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+          />
           
           <button type="submit" style={{ padding: '12px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
             診断セットを作成する
@@ -159,9 +158,8 @@ const [newDetailUrl, setNewDetailUrl] = useState('');
                     <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>
                       内容確認
                     </button>
-                    {/* 👇 ここの閉じカッコ ) を修正しました */}
                     <button 
-                      onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/${d.id}`, '_blank')}
+                      onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/diagnoses/${d.id}`, '_blank')}
                       style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                     >
                       質問を編集 (admin2)
