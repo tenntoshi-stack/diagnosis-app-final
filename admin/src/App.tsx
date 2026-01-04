@@ -123,6 +123,11 @@ const [newDetailUrl, setNewDetailUrl] = useState('');
   placeholder="「詳しく見る」ボタンの遷移先URLを入力"
   style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
 />
+          <input 
+  type="text" value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} 
+  placeholder="「詳しく見る」ボタンの遷移先URLを入力"
+  style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+/>
           
           <button type="submit" style={{ padding: '12px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
             診断セットを作成する
