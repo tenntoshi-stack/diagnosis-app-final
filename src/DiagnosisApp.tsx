@@ -110,7 +110,7 @@ const DiagnosisApp: React.FC = () => {
     const resultImage = result.image_url || result.image;
     
     // 【修正ポイント】管理画面から取得したURLを反映（なければ予備URL）
-    const detailUrl = diagnosisInfo.detail_url || "https://example.com/details"; 
+const detailUrl = result.detail_url || diagnosisInfo.detail_url || "https://www.google.com";
     const lineFriendUrl = "https://line.me/R/ti/p/@あなたのID"; // LINEは共通なので固定
 
     return (
