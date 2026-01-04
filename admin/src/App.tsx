@@ -159,8 +159,8 @@ function App() {
                       内容確認
                     </button>
                     <button 
-                      onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/${d.id}`, '_blank')}
-                      style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/`, '_blank')}
+style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                     >
                       質問を編集 (admin2)
                     </button>
