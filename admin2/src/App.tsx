@@ -19,38 +19,44 @@ function App() {
   const [resTitle, setResTitle] = useState('');
   const [resDesc, setResDesc] = useState('');
   const [resUrl, setResUrl] = useState('');
-  const [resDetailUrl, setResDetailUrl] = useState(''); // 追加
+  const [resDetailUrl, setResDetailUrl] = useState(''); 
   const [resImageUrl, setResImageUrl] = useState('');
+
+  // 接続先URLを定数として定義
+  const API_BASE = 'https://diagnosis-app-final.onrender.com';
 
   useEffect(() => { fetchDiagnoses(); }, []);
 
   const fetchDiagnoses = () => {
-    fetch('http://localhost:5000/api/diagnoses').then(res => res.json()).then(setDiagnoses);
+    fetch(`${API_BASE}/api/diagnoses`).then(res => res.json()).then(setDiagnoses);
   };
-const deleteDiagnosis = (id: number) => {
+
+  const deleteDiagnosis = (id: number) => {
     if (!confirm('この診断セットを削除してもよろしいですか？関連する質問も表示されなくなります。')) return;
     
-    fetch(`http://localhost:5000/api/diagnoses/${id}`, {
+    fetch(`${API_BASE}/api/diagnoses/${id}`, {
       method: 'DELETE'
     }).then(() => {
       if (selectedDiagnosis?.id === id) setSelectedDiagnosis(null);
       fetchDiagnoses();
     });
   };
+
   const deleteQuestion = (id: number) => {
     if (!confirm('この質問を削除しますか？')) return;
-    fetch(`http://localhost:5000/api/questions/${id}`, { method: 'DELETE' })
+    fetch(`${API_BASE}/api/questions/${id}`, { method: 'DELETE' })
       .then(() => selectDiagnosis(selectedDiagnosis));
   };
 
   const deleteChoice = (id: number) => {
     if (!confirm('この選択肢を削除しますか？')) return;
-    fetch(`http://localhost:5000/api/choices/${id}`, { method: 'DELETE' })
+    fetch(`${API_BASE}/api/choices/${id}`, { method: 'DELETE' })
       .then(() => selectQuestion(selectedQ));
   };
+
   const deleteResult = (id: number) => {
     if (!confirm('この診断結果を削除しますか？')) return;
-    fetch('http://localhost:5000/api/results/delete', {
+    fetch(`${API_BASE}/api/results/delete`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
@@ -58,10 +64,10 @@ const deleteDiagnosis = (id: number) => {
       selectDiagnosis(selectedDiagnosis);
     });
   };
-const addDiagnosis = () => {
-    fetch('http://localhost:5000/api/diagnoses', {
+
+  const addDiagnosis = () => {
+    fetch(`${API_BASE}/api/diagnoses`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      // name だけでなく description や image_url も空文字で初期作成するように送る
       body: JSON.stringify({ 
         name: newDiagnosisName, 
         description: "診断の説明をここに入力してください", 
@@ -69,14 +75,15 @@ const addDiagnosis = () => {
       })
     }).then(() => { setNewDiagnosisName(''); fetchDiagnoses(); });
   };
+
   const selectDiagnosis = (d: any) => {
     setSelectedDiagnosis(d);
-    fetch(`http://localhost:5000/api/diagnoses/${d.id}/questions`).then(res => res.json()).then(setQuestions);
-    fetch(`http://localhost:5000/api/diagnoses/${d.id}/results`).then(res => res.json()).then(setResults);
+    fetch(`${API_BASE}/api/diagnoses/${d.id}/questions`).then(res => res.json()).then(setQuestions);
+    fetch(`${API_BASE}/api/diagnoses/${d.id}/results`).then(res => res.json()).then(setResults);
   };
 
   const addQuestion = () => {
-    fetch('http://localhost:5000/api/questions', {
+    fetch(`${API_BASE}/api/questions`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ diagnosis_set_id: selectedDiagnosis.id, question_text: newQText })
     }).then(() => { setNewQText(''); selectDiagnosis(selectedDiagnosis); });
@@ -84,20 +91,21 @@ const addDiagnosis = () => {
 
   const selectQuestion = (q: any) => {
     setSelectedQ(q);
-    fetch(`http://localhost:5000/api/questions/${q.id}/choices`).then(res => res.json()).then(setChoices);
+    fetch(`${API_BASE}/api/questions/${q.id}/choices`).then(res => res.json()).then(setChoices);
   };
 
-const addChoice = () => {
-    fetch('http://localhost:5000/api/choices', {
+  const addChoice = () => {
+    fetch(`${API_BASE}/api/choices`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ question_id: selectedQ.id, choice_text: choiceText, next_question_id: nextQId, label: choiceLabel })
     }).then(() => { 
-      alert('選択肢を保存・更新しました'); // 追加
+      alert('選択肢を保存・更新しました'); 
       setChoiceText(''); setChoiceLabel(''); selectQuestion(selectedQ); 
     });
   };
-const addResult = () => {
-    fetch('http://localhost:5000/api/results', {
+
+  const addResult = () => {
+    fetch(`${API_BASE}/api/results`, {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         diagnosis_set_id: selectedDiagnosis.id, type_label: resLabel, result_title: resTitle,
@@ -105,14 +113,15 @@ const addResult = () => {
         detail_url: resDetailUrl
       })
     }).then(() => { 
-      alert('保存・更新が完了しました！'); // ←これを追加
+      alert('保存・更新が完了しました！'); 
       setResLabel(''); setResTitle(''); setResDesc(''); setResUrl(''); setResImageUrl(''); setResDetailUrl('');
       selectDiagnosis(selectedDiagnosis);
     });
   };
+
   return (
     <div style={{ padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>診断管理システム</h1>
+      <h1>診断管理システム (質問編集)</h1>
       
       <section>
         <h2>1. 診断セット作成</h2>
@@ -120,24 +129,22 @@ const addResult = () => {
         <button onClick={addDiagnosis}>作成</button>
         <ul>
           {diagnoses.map(d => (
-<li key={d.id} style={{ marginBottom: '10px' }}>
-  <strong style={{ fontSize: '1.1em' }}>{d.name}</strong>
-  <button onClick={() => selectDiagnosis(d)} style={{ marginLeft: '10px', cursor: 'pointer' }}>編集</button>
-  <a href={`/diagnosis/${d.id}`} target="_blank" style={{ marginLeft: '10px', color: '#007bff' }}>表示確認</a>
-  <button onClick={() => deleteDiagnosis(d.id)} style={{ marginLeft: '10px', color: 'red', cursor: 'pointer', border: '1px solid red', borderRadius: '4px', background: 'white' }}>削除</button>
-</li>
-))}
+            <li key={d.id} style={{ marginBottom: '10px' }}>
+              <strong style={{ fontSize: '1.1em' }}>{d.name}</strong>
+              <button onClick={() => selectDiagnosis(d)} style={{ marginLeft: '10px', cursor: 'pointer' }}>編集</button>
+              <button onClick={() => deleteDiagnosis(d.id)} style={{ marginLeft: '10px', color: 'red', cursor: 'pointer', border: '1px solid red', borderRadius: '4px', background: 'white' }}>削除</button>
+            </li>
+          ))}
         </ul>
       </section>
-{selectedDiagnosis && (
+
+      {selectedDiagnosis && (
         <div style={{ display: 'flex', gap: '40px' }}>
-          {/* --- 左側：質問と選択肢のエリア --- */}
           <section style={{ flex: 1 }}>
             <h2>2. 質問の追加 ({selectedDiagnosis.name})</h2>
             <input value={newQText} onChange={e => setNewQText(e.target.value)} placeholder="質問文" />
             <button onClick={addQuestion}>質問追加</button>
             
-            {/* 質問リスト（削除ボタン付き） */}
             <ul>
               {questions.map(q => (
                 <li key={q.id} style={{ marginBottom: '8px', listStyle: 'none' }}>
@@ -162,7 +169,6 @@ const addResult = () => {
               ))}
             </ul>
 
-            {/* 選択肢エリア（削除ボタン付き） */}
             {selectedQ && (
               <div style={{ background: '#f9f9f9', padding: '15px', borderRadius: '8px', border: '1px solid #ddd' }}>
                 <h3>選択肢の追加 (質問ID:{selectedQ.id})</h3>
@@ -188,7 +194,6 @@ const addResult = () => {
             )}
           </section>
 
-          {/* --- 右側：診断結果の設定エリア --- */}
           <section style={{ flex: 1, borderLeft: '1px solid #ccc', paddingLeft: '20px' }}>
             <h2>3. 診断結果の設定</h2>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -200,19 +205,19 @@ const addResult = () => {
               <input placeholder="詳しく見るURL (ブログなど)" value={resDetailUrl} onChange={e => setResDetailUrl(e.target.value)} />
               <button onClick={addResult}>結果を保存</button>
             </div>
-<ul>
-  {results.map(r => (
-    <li key={r.id} style={{ marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
-      <b>{r.type_label}</b>: {r.result_title}
-      <button 
-        onClick={() => deleteResult(r.id)} 
-        style={{ marginLeft: '10px', color: 'red', fontSize: '0.7em' }}
-      >
-        削除
-      </button>
-    </li>
-  ))}
-</ul>
+            <ul>
+              {results.map(r => (
+                <li key={r.id} style={{ marginBottom: '10px', borderBottom: '1px solid #eee', paddingBottom: '5px' }}>
+                  <b>{r.type_label}</b>: {r.result_title}
+                  <button 
+                    onClick={() => deleteResult(r.id)} 
+                    style={{ marginLeft: '10px', color: 'red', fontSize: '0.7em' }}
+                  >
+                    削除
+                  </button>
+                </li>
+              ))}
+            </ul>
           </section>
         </div>
       )}
