@@ -156,7 +156,7 @@ const [newDetailUrl, setNewDetailUrl] = useState('');
                     </button>
                     {/* 👇 ここの閉じカッコ ) を修正しました */}
                     <button 
-                      onClick={() => window.open(`https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`, '_blank')}
+                      onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/${d.id}`, '_blank')}
                       style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                     >
                       質問を編集 (admin2)
