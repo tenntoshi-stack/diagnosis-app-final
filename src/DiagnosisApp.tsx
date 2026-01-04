@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+
 const DiagnosisApp: React.FC = () => {
   const { id: paramsId } = useParams(); // URLパラメータから取得
   
@@ -14,10 +15,9 @@ const DiagnosisApp: React.FC = () => {
 
   // 1. 診断セットの情報を取得
   useEffect(() => {
-    console.log("判定された診断ID:", id); // 👈 IDが正しく認識されているか確認
+    console.log("判定された診断ID:", id);
 
     if (!id || id === "diagnoses") {
-      // IDが取れていない場合は読み込みを止める
       setLoading(false);
       return;
     }
@@ -29,7 +29,7 @@ const DiagnosisApp: React.FC = () => {
         return res.json();
       })
       .then(data => {
-        console.log("届いたデータ詳細:", data); // 👈 データの中身を確認
+        console.log("届いたデータ詳細:", data);
         setDiagnosisInfo({
           ...data,
           displayTitle: data.name || data.title || "無題の診断"
@@ -41,6 +41,7 @@ const DiagnosisApp: React.FC = () => {
         setLoading(false);
       });
   }, [id]);
+
   // 2. 診断を開始する
   const startDiagnosis = () => {
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}/questions/first`)
@@ -67,16 +68,15 @@ const DiagnosisApp: React.FC = () => {
     }
   };
 
-// loadingがtrue、かつ diagnosisInfo がまだ空の場合だけ「読み込み中」を出す
   if (loading && !diagnosisInfo) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>読み込み中... (サーバーからの応答を待っています)</div>;
+    return <div style={{ textAlign: 'center', padding: '50px' }}>読み込み中...</div>;
   }
 
-  // もしデータ取得に失敗して diagnosisInfo が無い場合
   if (!diagnosisInfo) {
-    return <div style={{ textAlign: 'center', padding: '50px' }}>データが見つかりませんでした。URLを確認してください。</div>;
+    return <div style={{ textAlign: 'center', padding: '50px' }}>データが見つかりませんでした。</div>;
   }
-// --- A. 診断トップ画面（開始前） ---
+
+  // --- A. 診断トップ画面（開始前） ---
   if (!isStarted && diagnosisInfo) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
@@ -102,15 +102,16 @@ const DiagnosisApp: React.FC = () => {
       </div>
     );
   }
-// --- B. 診断結果画面 ---
+
+  // --- B. 診断結果画面 ---
   if (result) {
     const resultTitle = result.result_title || result.title || "診断結果";
     const resultContent = result.result_description || result.content || "あなたにぴったりのメニューが見つかりました。";
     const resultImage = result.image_url || result.image;
     
-    // URLの設定（ご自身のURLに書き換えてください）
-    const detailUrl = "https://example.com/details"; // 詳細ページのURL
-    const lineFriendUrl = "https://line.me/R/ti/p/@あなたのID"; // LINE友だち追加のURL
+    // 【修正ポイント】管理画面から取得したURLを反映（なければ予備URL）
+    const detailUrl = diagnosisInfo.detail_url || "https://example.com/details"; 
+    const lineFriendUrl = "https://line.me/R/ti/p/@あなたのID"; // LINEは共通なので固定
 
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
@@ -133,14 +134,14 @@ const DiagnosisApp: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {/* 1. 結果をもっと詳しく見るボタン（落ち着いた色に変更） */}
+            {/* 詳細ボタン：リンク先を detailUrl に変更 */}
             <a href={detailUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <button style={{ width: '100%', padding: '18px', backgroundColor: '#8d6e63', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(141, 110, 99, 0.2)' }}>
                 結果をもっと詳しく見る
               </button>
             </a>
 
-            {/* 2. LINEで友だちになるボタン（LINEカラーの緑） */}
+            {/* LINEボタン：色は緑 */}
             <a href={lineFriendUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <button style={{ width: '100%', padding: '18px', backgroundColor: '#06C755', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 12px rgba(6, 199, 85, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
                 LINEで友だちになる
@@ -151,6 +152,7 @@ const DiagnosisApp: React.FC = () => {
       </div>
     );
   }
+
   // --- C. 質問表示画面 ---
   if (currentQuestion) {
     return (
@@ -166,13 +168,13 @@ const DiagnosisApp: React.FC = () => {
       </div>
     );
   }
+
   return null;
 };
 
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
   useEffect(() => {
-    // Google検索のURLを削除し、正しいAPIのURLに修正しました
     fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
       .then(res => res.json())
       .then(data => setChoices(data));
@@ -181,25 +183,24 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
   return (
     <>
       {choices.map((c: any) => (
-// 選択肢ボタンのデザイン
-<button 
-  key={c.id} 
-  onClick={() => onSelect(c.next_question_id, c.label)}
-  style={{ 
-    padding: '20px', 
-    border: '2px solid #f0f0f0', 
-    borderRadius: '15px', 
-    background: '#fff', 
-    cursor: 'pointer', 
-    fontSize: '1.05em', 
-    textAlign: 'left',
-    transition: '0.2s',
-    color: '#444'
-  }}
->
-  {c.choice_text}
-</button>
-))}
+        <button 
+          key={c.id} 
+          onClick={() => onSelect(c.next_question_id, c.label)}
+          style={{ 
+            padding: '20px', 
+            border: '2px solid #f0f0f0', 
+            borderRadius: '15px', 
+            background: '#fff', 
+            cursor: 'pointer', 
+            fontSize: '1.05em', 
+            textAlign: 'left',
+            transition: '0.2s',
+            color: '#444'
+          }}
+        >
+          {c.choice_text}
+        </button>
+      ))}
     </>
   );
 };

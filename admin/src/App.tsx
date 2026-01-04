@@ -5,6 +5,7 @@ interface DiagnosisSet {
   name: string;
   description: string;
   image_url: string;
+  detail_url: string;
   is_public: number;
   created_at: string;
 }
@@ -16,7 +17,7 @@ function App() {
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
-
+const [newDetailUrl, setNewDetailUrl] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisSet | null>(null);
 
@@ -56,6 +57,7 @@ function App() {
         name: newName, 
         description: newDescription, 
         image_url: newImageUrl 
+        detail_url: newDetailUrl
       })
     })
     .then(() => {
@@ -116,6 +118,12 @@ function App() {
             placeholder="トップ画像のURL"
             style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
           />
+          <input 
+  type="text" value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} 
+  placeholder="「詳しく見る」ボタンの遷移先URLを入力"
+  style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
+/>
+          
           <button type="submit" style={{ padding: '12px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
             診断セットを作成する
           </button>
