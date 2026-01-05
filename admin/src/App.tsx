@@ -15,7 +15,7 @@ function App() {
 
   useEffect(() => {
     const password = prompt("管理パスワードを入力してください");
-    if (password === "あなたの好きなパスワード") { // ← ここにパスワードを設定
+    if (password === "tdiagnosise2026") { // ← ここにパスワードを設定
       setIsAuthenticated(true);
     } else {
       alert("パスワードが違います");

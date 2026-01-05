@@ -5,7 +5,7 @@ function App() {
 
   useEffect(() => {
     const password = prompt("編集用パスワードを入力してください");
-    if (password === "あなたの好きなパスワード") {
+    if (password === "tdiagnosise2026") {
       setIsAuthenticated(true);
     } else {
       alert("パスワードが違います");
