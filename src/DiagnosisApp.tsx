@@ -88,8 +88,8 @@ const DiagnosisApp: React.FC = () => {
     
     // 【最重要】diagnosisInfo から detail_url を確実に取得する
     // 保存されたデータを確認するため、まずは diagnosisInfo.detail_url を最優先にします
-    const detailUrl = diagnosisInfo.detail_url || "https://www.google.com";
-    const lineFriendUrl = "https://line.me/R/ti/p/@あなたのID";
+const detailUrl = result.detail_url || diagnosisInfo.detail_url || "https://www.google.com";
+    const lineFriendUrl = "https://line.me/R/ti/p/@https://lin.ee/oI5hgBo";
 
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
