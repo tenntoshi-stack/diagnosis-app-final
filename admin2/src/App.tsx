@@ -112,15 +112,36 @@ function Admin2Main() {
             )}
           </section>
 
+{/* ここから書き換え */}
           <section style={{ flex: 1 }}>
             <h2>3. 診断結果の設定</h2>
-            <input placeholder="ラベル" value={resLabel} onChange={e => setResLabel(e.target.value)} />
-            <input placeholder="タイトル" value={resTitle} onChange={e => setResTitle(e.target.value)} />
-            <textarea placeholder="説明" value={resDesc} onChange={e => setResDesc(e.target.value)} />
-            <input placeholder="結果個別URL" value={resDetailUrl} onChange={e => setResDetailUrl(e.target.value)} />
-            <input placeholder="画像URL" value={resImageUrl} onChange={e => setResImageUrl(e.target.value)} />
-            <button onClick={addResult}>保存</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '10px', border: '1px solid #ddd' }}>
+              <div>
+                <label style={{ fontSize: '0.8em', color: '#666', display: 'block', marginBottom: '4px' }}>ラベル（例: A）</label>
+                <input style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} value={resLabel} onChange={e => setResLabel(e.target.value)} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8em', color: '#666', display: 'block', marginBottom: '4px' }}>結果タイトル</label>
+                <input style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} value={resTitle} onChange={e => setResTitle(e.target.value)} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8em', color: '#666', display: 'block', marginBottom: '4px' }}>説明文</label>
+                <textarea style={{ width: '100%', padding: '8px', minHeight: '100px', boxSizing: 'border-box' }} value={resDesc} onChange={e => setResDesc(e.target.value)} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8em', color: '#666', display: 'block', marginBottom: '4px' }}>結果個別URL（ブログ等のリンク）</label>
+                <input style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} value={resDetailUrl} onChange={e => setResDetailUrl(e.target.value)} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.8em', color: '#666', display: 'block', marginBottom: '4px' }}>結果画像URL</label>
+                <input style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }} value={resImageUrl} onChange={e => setResImageUrl(e.target.value)} />
+              </div>
+              <button onClick={addResult} style={{ padding: '12px', background: '#28a745', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold', marginTop: '10px' }}>
+                診断結果を保存
+              </button>
+            </div>
           </section>
+          {/* ここまで書き換え */}
         </div>
       )}
     </div>
