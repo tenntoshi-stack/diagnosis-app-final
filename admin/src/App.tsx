@@ -11,6 +11,19 @@ interface DiagnosisSet {
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const password = prompt("管理パスワードを入力してください");
+    if (password === "あなたの好きなパスワード") { // ← ここにパスワードを設定
+      setIsAuthenticated(true);
+    } else {
+      alert("パスワードが違います");
+      window.location.reload();
+    }
+  }, []);
+
+  if (!isAuthenticated) return <div>認証中...</div>;
   const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
   const [loading, setLoading] = useState(true);
   

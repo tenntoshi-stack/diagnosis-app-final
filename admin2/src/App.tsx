@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const password = prompt("編集用パスワードを入力してください");
+    if (password === "あなたの好きなパスワード") {
+      setIsAuthenticated(true);
+    } else {
+      alert("パスワードが違います");
+      window.location.reload();
+    }
+  }, []);
+
+  if (!isAuthenticated) return <div>認証中...</div>;
   const [diagnoses, setDiagnoses] = useState<any[]>([]);
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<any>(null);
   const [newDiagnosisName, setNewDiagnosisName] = useState('');
