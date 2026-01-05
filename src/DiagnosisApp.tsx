@@ -134,10 +134,8 @@ const detailUrl = result.detail_url || diagnosisInfo.detail_url || "https://www.
   }
   return null;
 };
-
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
-  // マウスがどのボタンに乗っているかを管理するための状態
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   useEffect(() => {
@@ -152,23 +150,26 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
         <button 
           key={c.id} 
           onClick={() => onSelect(c.next_question_id, c.label)} 
-          onMouseEnter={() => setHoveredId(c.id)} // マウスが乗った時
-          onMouseLeave={() => setHoveredId(null)} // マウスが離れた時
+          onMouseEnter={() => setHoveredId(c.id)}
+          onMouseLeave={() => setHoveredId(null)}
           style={{ 
             padding: '20px', 
             border: '2px solid #ff8e8e', 
             borderRadius: '15px', 
-            // 🌟 ホバー時は背景を薄いサーモンピンクに、通常は白にする
+            // 🌟 通常は白、ホバー時は薄いピンク
             background: hoveredId === c.id ? '#fff0f0' : '#fff', 
             cursor: 'pointer', 
             fontSize: '1.05em', 
             textAlign: 'left', 
             color: '#444',
-            // 🌟 動きを滑らかにする設定
             transition: 'all 0.2s ease',
-            // 🌟 ホバー時に少しだけボタンを浮かせる
-            transform: hoveredId === c.id ? 'translateY(-2px)' : 'translateY(0)',
-            boxShadow: hoveredId === c.id ? '0 4px 12px rgba(255, 142, 142, 0.2)' : 'none'
+            // 🌟 ホバー時に少し浮かせる
+            transform: hoveredId === c.id ? 'translateY(-3px)' : 'translateY(0)',
+            // 🌟 ホバー時に柔らかい影をつける
+            boxShadow: hoveredId === c.id ? '0 6px 15px rgba(255, 142, 142, 0.3)' : 'none',
+            display: 'block',
+            width: '100%',
+            marginBottom: '10px'
           }}
         >
           {c.choice_text}
