@@ -49,6 +49,7 @@ export default function DiagnosisApp() {
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
   const [result, setResult] = useState<any>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
     fetch('https://diagnosis-app-final.onrender.com/api/diagnoses/latest')
@@ -64,13 +65,16 @@ export default function DiagnosisApp() {
       });
   };
 
-  const onSelectChoice = (nextId: number, label: string) => {
+const onSelectChoice = (nextId: number, label: string) => {
     const newHistory = [...history, label];
     setHistory(newHistory);
 
     if (nextId) {
       setCurrentQuestionId(nextId);
     } else {
+      // 🌟 解析中アニメーションを開始
+      setIsCalculating(true);
+
       const counts: any = {};
       newHistory.forEach(l => { counts[l] = (counts[l] || 0) + 1; });
       const finalLabel = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
@@ -78,14 +82,41 @@ export default function DiagnosisApp() {
       fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/results/${finalLabel}`)
         .then(res => res.json())
         .then(data => {
-          setResult(data);
-          setCurrentQuestionId(null);
+          // 🌟 2秒間わざと待たせてから結果を表示する
+          setTimeout(() => {
+            setResult(data);
+            setIsCalculating(false); // ローディング終了
+            setCurrentQuestionId(null);
+          }, 2000);
         });
     }
   };
-
   if (!diagnosisInfo) return <div style={{ textAlign: 'center', marginTop: '50px' }}>読み込み中...</div>;
-
+if (isCalculating) {
+    return (
+      <div style={{ minHeight: '100vh', backgroundColor: '#fffaf9', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="loader" style={{ 
+            border: '4px solid #f3f3f3',
+            borderTop: '4px solid #ff8e8e',
+            borderRadius: '50%',
+            width: '45px',
+            height: '45px',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 25px'
+          }}></div>
+          <h2 style={{ color: '#ff8e8e', fontSize: '1.2em', letterSpacing: '0.05em' }}>診断結果を解析しています...</h2>
+          <p style={{ color: '#aaa', fontSize: '0.9em', marginTop: '10px' }}>あなたに最適なプランを見つけています</p>
+        </div>
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+      </div>
+    );
+  }
   // 1. 結果表示画面
   if (result) {
     const resultTitle = result.result_title || result.title || "診断結果";
