@@ -147,35 +147,32 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
   return (
     <>
       {choices.map((c: any) => (
-        <button 
-          key={c.id} 
-          onClick={() => onSelect(c.next_question_id, c.label)} 
-          onMouseEnter={() => setHoveredId(c.id)}
-          onMouseLeave={() => setHoveredId(null)}
-          style={{ 
-            padding: '20px', 
-            border: '2px solid #ff8e8e', 
-            borderRadius: '15px', 
-            // 🌟 !important の代わりに三項演算子で確実に制御
-            backgroundColor: hoveredId === c.id ? '#fff0f0' : '#ffffff', 
-            cursor: 'pointer', 
-            fontSize: '1.05em', 
-            textAlign: 'left', 
-            color: '#444',
-            transition: 'all 0.25s ease',
-            transform: hoveredId === c.id ? 'translateY(-3px)' : 'translateY(0)',
-            boxShadow: hoveredId === c.id ? '0 6px 15px rgba(255, 142, 142, 0.3)' : '0 2px 5px rgba(0,0,0,0.05)',
-            display: 'block',
-            width: '100%',
-            marginBottom: '15px',
-            // 🌟 クリック時の黒い枠（アウトライン）を消す設定
-            outline: 'none',
-            WebkitTapHighlightColor: 'transparent' // スマホのタップ色も抑制
-          }}
-        >
-          {c.choice_text}
-        </button>
-      ))}
+<button 
+  key={c.id} 
+  onClick={() => onSelect(c.next_question_id, c.label)} 
+  onMouseEnter={() => { console.log("Mouse Enter!"); setHoveredId(c.id); }} // 🌟ログを追加
+  onMouseLeave={() => setHoveredId(null)}
+  style={{ 
+    padding: '20px', 
+    border: '2px solid #ff8f8f', // 🌟1文字変更
+    borderRadius: '15px', 
+    backgroundColor: hoveredId === c.id ? '#fff0f0' : '#ffffff', 
+    cursor: 'pointer', 
+    fontSize: '1.05em', 
+    textAlign: 'left', 
+    color: '#444',
+    transition: 'all 0.3s ease-out', // 🌟時間を少し伸ばす
+    transform: hoveredId === c.id ? 'translateY(-4px)' : 'translateY(0)', // 🌟高さを変える
+    boxShadow: hoveredId === c.id ? '0 8px 20px rgba(255, 142, 142, 0.4)' : '0 2px 5px rgba(0,0,0,0.05)',
+    display: 'block',
+    width: '100%',
+    marginBottom: '15px',
+    outline: 'none'
+  }}
+>
+  {c.choice_text}
+</button>
+))}
     </>
   );
 };
