@@ -91,31 +91,31 @@ if (result) {
 
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fffaf9', padding: '20px', fontFamily: '"Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif' }}>
-        <div style={{ maxWidth: '500px', margin: '30px auto', textAlign: 'center', padding: '40px 25px', backgroundColor: '#fff', borderRadius: '40px', boxShadow: '0 15px 40px rgba(255, 142, 142, 0.1)' }}>
+        <div style={{ maxWidth: '500px', margin: '30px auto', textAlign: 'center', padding: '40px 25px 50px', backgroundColor: '#fff', borderRadius: '40px', boxShadow: '0 15px 40px rgba(255, 142, 142, 0.1)' }}>
           
           {/* サブタイトル */}
           <p style={{ color: '#ff8e8e', fontWeight: 'bold', fontSize: '0.9em', letterSpacing: '0.1em', marginBottom: '10px' }}>YOUR DIAGNOSIS</p>
           
-          {/* メインタイトル：文字間隔を広げておしゃれに */}
+          {/* メインタイトル */}
           <h1 style={{ fontSize: '1.7em', color: '#444', marginBottom: '30px', fontWeight: 'bold', lineHeight: '1.4' }}>
             {resultTitle}
           </h1>
 
-          {/* 画像：角を丸くして柔らかい印象に */}
+          {/* 画像 */}
           {result.image_url && (
             <div style={{ marginBottom: '30px', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}>
               <img src={result.image_url} alt="Result" style={{ width: '100%', display: 'block' }} />
             </div>
           )}
 
-          {/* 説明文エリア：背景色をさらに薄くし、行間を広げて読みやすく */}
+          {/* 説明文エリア */}
           <div style={{ textAlign: 'left', backgroundColor: '#fffaf9', padding: '25px', borderRadius: '25px', marginBottom: '40px', border: '1px dashed #ffcaca' }}>
             <p style={{ color: '#555', lineHeight: '2.0', fontSize: '1.05em', whiteSpace: 'pre-wrap', margin: 0 }}>
               {resultContent}
             </p>
           </div>
 
-          {/* ボタンエリア */}
+          {/* ボタンエリア：ここがコンバージョン（予約・登録）へのメイン導線 */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <a href={detailUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
               <button style={{ width: '100%', padding: '20px', backgroundColor: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 142, 142, 0.3)', transition: 'transform 0.2s' }}>
@@ -129,10 +129,8 @@ if (result) {
               </button>
             </a>
           </div>
-
-          <button onClick={() => window.location.reload()} style={{ marginTop: '30px', background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.9em' }}>
-            もう一度診断する
-          </button>
+          
+          {/* 「もう一度診断する」を削除しました */}
         </div>
       </div>
     );
