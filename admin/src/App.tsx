@@ -10,9 +10,23 @@ interface DiagnosisSet {
   created_at: string;
 }
 
-function App() {
-  // 🌟 useState は必ず最初（関数の直下）にすべて並べる
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+// 🌟 1. 認証専用のコンポーネントを外側に作成
+function Auth({ onAuthenticated }: { onAuthenticated: () => void }) {
+  useEffect(() => {
+    const password = prompt("管理パスワードを入力してください");
+    if (password === "tdiagnosise2026") {
+      onAuthenticated();
+    } else {
+      alert("パスワードが違います");
+      window.location.reload();
+    }
+  }, [onAuthenticated]);
+
+  return <div style={{ padding: '50px', textAlign: 'center' }}>認証中...</div>;
+}
+
+// 🌟 2. メインの管理画面
+function AdminMain() {
   const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
@@ -21,18 +35,6 @@ function App() {
   const [newDetailUrl, setNewDetailUrl] = useState('');
   const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
   const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisSet | null>(null);
-
-  // 🌟 パスワード認証とデータ取得を一つの useEffect で管理
-  useEffect(() => {
-    const password = prompt("管理パスワードを入力してください");
-    if (password === "tdiagnosise2026") { 
-      setIsAuthenticated(true);
-      fetchDiagnoses(); // 認証成功後にデータを取得
-    } else {
-      alert("パスワードが違います");
-      window.location.reload();
-    }
-  }, []);
 
   const fetchDiagnoses = () => {
     fetch('https://diagnosis-app-final.onrender.com/api/diagnoses')
@@ -43,6 +45,10 @@ function App() {
       })
       .catch(err => console.error("取得エラー:", err));
   };
+
+  useEffect(() => {
+    fetchDiagnoses();
+  }, []);
 
   const goToEdit = (diagnosis: DiagnosisSet) => {
     setSelectedDiagnosis(diagnosis);
@@ -70,126 +76,79 @@ function App() {
       })
     })
     .then(() => {
-      setNewName('');
-      setNewDescription('');
-      setNewImageUrl('');
-      setNewDetailUrl('');
+      setNewName(''); setNewDescription(''); setNewImageUrl(''); setNewDetailUrl('');
       fetchDiagnoses();
       alert('診断セットを作成しました！');
-    })
-    .catch(err => console.error("作成エラー:", err));
+    });
   };
 
   const deleteDiagnosis = (id: number) => {
     if (!confirm("本当に削除しますか？")) return;
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`, { method: 'DELETE' })
-    .then(() => fetchDiagnoses())
-    .catch(err => console.error("削除エラー:", err));
+    .then(() => fetchDiagnoses());
   };
-
-  // 🌟 認証がまだの場合は「認証中」のみ表示して、後ろの Hook 呼び出しを邪魔しない
-  if (!isAuthenticated) return <div style={{ padding: '20px' }}>認証中...</div>;
-
-  // --- 以下、元のデザインを完全維持 ---
 
   if (viewMode === 'edit' && selectedDiagnosis) {
     return (
-      <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
-        <button onClick={goBack} style={{ marginBottom: '20px', cursor: 'pointer' }}>← 一覧に戻る</button>
+      <div style={{ padding: '30px', maxWidth: '800px', margin: '0 auto' }}>
+        <button onClick={goBack}>← 一覧に戻る</button>
         <h1>📝 診断の詳細確認</h1>
         <div style={{ backgroundColor: '#e9ecef', padding: '20px', borderRadius: '8px' }}>
           <p><strong>診断名:</strong> {selectedDiagnosis.name}</p>
           <p><strong>説明文:</strong> {selectedDiagnosis.description}</p>
-          {selectedDiagnosis.image_url && (
-            <p><strong>トップ画像:</strong><br/><img src={selectedDiagnosis.image_url} style={{maxWidth: '200px', marginTop: '10px'}} /></p>
-          )}
-          {selectedDiagnosis.detail_url && (
-            <p><strong>詳細URL:</strong><br/><a href={selectedDiagnosis.detail_url} target="_blank" rel="noreferrer">{selectedDiagnosis.detail_url}</a></p>
-          )}
-        </div>
-        <div style={{ marginTop: '30px', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
-          <p>💡 質問の追加や分岐の設定は、<b>admin2</b> の画面で行ってください。</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '30px', maxWidth: '800px', margin: '0 auto' }}>
       <h1>🛠️ 診断システム 管理パネル(Top設定)</h1>
-      
-      <section style={{ backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '8px', marginBottom: '30px', border: '1px solid #ddd' }}>
+      <section style={{ backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '8px', marginBottom: '30px' }}>
         <h3>🌟 新しい診断セットを追加</h3>
         <form onSubmit={createDiagnosis} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <input 
-            type="text" value={newName} onChange={(e) => setNewName(e.target.value)} 
-            placeholder="診断タイトルを入力"
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-          <textarea 
-            value={newDescription} onChange={(e) => setNewDescription(e.target.value)} 
-            placeholder="お客様へのメッセージ・説明文"
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc', minHeight: '80px' }}
-          />
-          <input 
-            type="text" value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} 
-            placeholder="トップ画像のURL"
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-          <input 
-            type="text" value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} 
-            placeholder="「詳しく見る」ボタンの遷移先URLを入力"
-            style={{ padding: '10px', borderRadius: '4px', border: '1px solid #ccc' }}
-          />
-          
-          <button type="submit" style={{ padding: '12px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>
-            診断セットを作成する
-          </button>
+          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="診断タイトル" />
+          <textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="説明文" />
+          <input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="画像URL" />
+          <input value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} placeholder="詳細URL" />
+          <button type="submit" style={{ backgroundColor: '#222', color: 'white', padding: '12px' }}>作成する</button>
         </form>
       </section>
 
-      <hr />
-      
-      {loading ? (
-        <p>読み込み中...</p>
-      ) : (
-        <div style={{ marginTop: '20px' }}>
-          <h2>現在のリスト ({diagnoses.length}件)</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ backgroundColor: '#333', color: 'white', textAlign: 'left' }}>
-                <th style={{ padding: '12px', border: '1px solid #ddd' }}>ID</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd' }}>診断名</th>
-                <th style={{ padding: '12px', border: '1px solid #ddd' }}>操作</th>
+      {loading ? <p>読み込み中...</p> : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#333', color: 'white' }}>
+              <th>ID</th><th>診断名</th><th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {diagnoses.map(d => (
+              <tr key={d.id}>
+                <td>{d.id}</td>
+                <td>{d.name}</td>
+                <td>
+                  <button onClick={() => goToEdit(d)}>確認</button>
+                  <button onClick={() => window.open('https://diagnosis-admin-questions.vercel.app/', '_blank')}>admin2</button>
+                  <button onClick={() => deleteDiagnosis(d.id)} style={{ color: 'red' }}>削除</button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {diagnoses.map(d => (
-                <tr key={d.id} style={{ borderBottom: '1px solid #eee' }}>
-                  <td style={{ padding: '12px' }}>{d.id}</td>
-                  <td style={{ padding: '12px', fontWeight: 'bold' }}>{d.name}</td>
-                  <td style={{ padding: '12px', display: 'flex', gap: '5px' }}>
-                    <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>
-                      内容確認
-                    </button>
-                    <button 
-                      onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/`, '_blank')}
-                      style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
-                    >
-                      質問を編集 (admin2)
-                    </button>
-                    <button onClick={() => deleteDiagnosis(d.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>
-                      削除
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
 }
 
-export default App;
+// 🌟 3. App コンポーネントで切り替える
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // パスワードがまだなら Auth画面、パスワードが通れば AdminMain画面を表示
+  if (!isAuthenticated) {
+    return <Auth onAuthenticated={() => setIsAuthenticated(true)} />;
+  }
+
+  return <AdminMain />;
+}
