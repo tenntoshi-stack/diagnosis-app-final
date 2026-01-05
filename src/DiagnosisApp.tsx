@@ -156,20 +156,21 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
             padding: '20px', 
             border: '2px solid #ff8e8e', 
             borderRadius: '15px', 
-            // 🌟 通常は白、ホバー時は薄いピンク
-            background: hoveredId === c.id ? '#fff0f0' : '#fff', 
+            // 🌟 !important の代わりに三項演算子で確実に制御
+            backgroundColor: hoveredId === c.id ? '#fff0f0' : '#ffffff', 
             cursor: 'pointer', 
             fontSize: '1.05em', 
             textAlign: 'left', 
             color: '#444',
-            transition: 'all 0.2s ease',
-            // 🌟 ホバー時に少し浮かせる
+            transition: 'all 0.25s ease',
             transform: hoveredId === c.id ? 'translateY(-3px)' : 'translateY(0)',
-            // 🌟 ホバー時に柔らかい影をつける
-            boxShadow: hoveredId === c.id ? '0 6px 15px rgba(255, 142, 142, 0.3)' : 'none',
+            boxShadow: hoveredId === c.id ? '0 6px 15px rgba(255, 142, 142, 0.3)' : '0 2px 5px rgba(0,0,0,0.05)',
             display: 'block',
             width: '100%',
-            marginBottom: '10px'
+            marginBottom: '15px',
+            // 🌟 クリック時の黒い枠（アウトライン）を消す設定
+            outline: 'none',
+            WebkitTapHighlightColor: 'transparent' // スマホのタップ色も抑制
           }}
         >
           {c.choice_text}
