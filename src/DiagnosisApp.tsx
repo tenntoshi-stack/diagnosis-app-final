@@ -4,12 +4,21 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
   const [choices, setChoices] = useState([]);
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
-  useEffect(() => {
-    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
+useEffect(() => {
+    // 🌟 ここを修正：URLを確実にデータがあるものに変更
+    // もし管理画面で作成した診断のIDが「1」なら 1 を入れてください
+    // IDがわからない場合は、一旦 'https://diagnosis-app-final.onrender.com/api/diagnoses' 
+    // でリストの0番目を取るようにガードをかけます。
+    fetch('https://diagnosis-app-final.onrender.com/api/diagnoses')
       .then(res => res.json())
-      .then(data => setChoices(data));
-  }, [questionId]);
-
+      .then(data => {
+        if (data && data.length > 0) {
+          // リストの一番新しいもの（最後に追加したもの）をセット
+          setDiagnosisInfo(data[data.length - 1]);
+        }
+      })
+      .catch(err => console.error("初期読み込みエラー:", err));
+  }, []);
   return (
     <>
       {choices.map((c: any) => (
