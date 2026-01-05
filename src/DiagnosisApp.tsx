@@ -74,7 +74,7 @@ const DiagnosisApp: React.FC = () => {
           <p style={{ color: '#777', lineHeight: '1.8', marginBottom: '30px', fontSize: '1.1em', whiteSpace: 'pre-wrap' }}>
             {diagnosisInfo.description || "あなたにぴったりのメニューを提案します。"}
           </p>
-          <button onClick={startDiagnosis} style={{ width: '100%', padding: '20px', backgroundColor: '#8d6e63', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.2em', fontWeight: 'bold', cursor: 'pointer' }}>
+          <button onClick={startDiagnosis} style={{ width: '100%', padding: '20px', backgroundColor: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.2em', fontWeight: 'bold', cursor: 'pointer' }}>
             診断をはじめる
           </button>
         </div>
@@ -105,7 +105,7 @@ const detailUrl = result.detail_url || diagnosisInfo.detail_url || "https://www.
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <a href={detailUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '18px', backgroundColor: '#8d6e63', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button style={{ width: '100%', padding: '18px', backgroundColor: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer' }}>
                 結果をもっと詳しく見る
               </button>
             </a>
@@ -143,7 +143,7 @@ const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelec
   return (
     <>
       {choices.map((c: any) => (
-        <button key={c.id} onClick={() => onSelect(c.next_question_id, c.label)} style={{ padding: '20px', border: '2px solid #f0f0f0', borderRadius: '15px', background: '#fff', cursor: 'pointer', fontSize: '1.05em', textAlign: 'left', color: '#444' }}>
+        <button key={c.id} onClick={() => onSelect(c.next_question_id, c.label)} style={{ padding: '20px', border: '2px solid #ff8e8e', borderRadius: '15px', background: '#fff', cursor: 'pointer', fontSize: '1.05em', textAlign: 'left', color: '#444' }}>
           {c.choice_text}
         </button>
       ))}
