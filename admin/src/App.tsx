@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 
+// --- 型定義 ---
 interface DiagnosisSet {
   id: number;
   name: string;
@@ -10,7 +11,7 @@ interface DiagnosisSet {
   created_at: string;
 }
 
-// 🌟 メインの管理画面
+// --- 1. 管理画面の本体（元の機能をすべてここに集約） ---
 function AdminMain() {
   const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,83 +50,111 @@ function AdminMain() {
   const createDiagnosis = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
-
     fetch('https://diagnosis-app-final.onrender.com/api/diagnoses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        name: newName, 
-        description: newDescription, 
-        image_url: newImageUrl, 
-        detail_url: newDetailUrl 
+        name: newName, description: newDescription, 
+        image_url: newImageUrl, detail_url: newDetailUrl 
       })
     })
     .then(() => {
       setNewName(''); setNewDescription(''); setNewImageUrl(''); setNewDetailUrl('');
       fetchDiagnoses();
-      alert('作成しました！');
+      alert('診断セットを作成しました！');
     });
   };
 
+  const deleteDiagnosis = (id: number) => {
+    if (!confirm("本当に削除しますか？")) return;
+    fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`, { method: 'DELETE' })
+    .then(() => fetchDiagnoses());
+  };
+
+  // 編集モードの表示
   if (viewMode === 'edit' && selectedDiagnosis) {
     return (
-      <div style={{ padding: '30px' }}>
-        <button onClick={goBack}>← 一覧に戻る</button>
-        <h1>📝 内容確認: {selectedDiagnosis.name}</h1>
-        <p>{selectedDiagnosis.description}</p>
+      <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+        <button onClick={goBack} style={{ marginBottom: '20px', cursor: 'pointer' }}>← 一覧に戻る</button>
+        <h1>📝 診断の詳細確認</h1>
+        <div style={{ backgroundColor: '#e9ecef', padding: '20px', borderRadius: '8px' }}>
+          <p><strong>診断名:</strong> {selectedDiagnosis.name}</p>
+          <p><strong>説明文:</strong> {selectedDiagnosis.description}</p>
+          {selectedDiagnosis.image_url && <p><img src={selectedDiagnosis.image_url} style={{maxWidth: '200px'}} /></p>}
+          {selectedDiagnosis.detail_url && <p><strong>詳細URL:</strong> {selectedDiagnosis.detail_url}</p>}
+        </div>
       </div>
     );
   }
 
+  // 一覧モードの表示
   return (
-    <div style={{ padding: '30px', maxWidth: '800px', margin: '0 auto' }}>
-      <h1>🛠️ 管理パネル</h1>
-      <form onSubmit={createDiagnosis} style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="診断名" style={{ padding: '10px' }} />
-        <button type="submit" style={{ padding: '10px', background: '#222', color: '#fff' }}>作成</button>
-      </form>
-      {loading ? <p>読込中...</p> : (
-        <ul>
-          {diagnoses.map(d => (
-            <li key={d.id} style={{ marginBottom: '10px' }}>
-              {d.name} 
-              <button onClick={() => goToEdit(d)} style={{ marginLeft: '10px' }}>確認</button>
-              <button onClick={() => window.open('https://diagnosis-admin-questions.vercel.app/', '_blank')} style={{ marginLeft: '10px' }}>admin2</button>
-            </li>
-          ))}
-        </ul>
+    <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
+      <h1>🛠️ 診断システム 管理パネル</h1>
+      <section style={{ backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '8px', marginBottom: '30px', border: '1px solid #ddd' }}>
+        <h3>🌟 新しい診断セットを追加</h3>
+        <form onSubmit={createDiagnosis} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+          <input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="診断タイトル" style={{ padding: '10px' }} />
+          <textarea value={newDescription} onChange={(e) => setNewDescription(e.target.value)} placeholder="説明文" style={{ padding: '10px', minHeight: '80px' }} />
+          <input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} placeholder="トップ画像URL" style={{ padding: '10px' }} />
+          <input value={newDetailUrl} onChange={(e) => setNewDetailUrl(e.target.value)} placeholder="詳しく見るURL" style={{ padding: '10px' }} />
+          <button type="submit" style={{ padding: '12px', backgroundColor: '#222', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer', fontWeight: 'bold' }}>作成する</button>
+        </form>
+      </section>
+      {loading ? <p>読み込み中...</p> : (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#333', color: 'white', textAlign: 'left' }}>
+              <th style={{ padding: '12px' }}>ID</th><th style={{ padding: '12px' }}>診断名</th><th style={{ padding: '12px' }}>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            {diagnoses.map(d => (
+              <tr key={d.id} style={{ borderBottom: '1px solid #eee' }}>
+                <td style={{ padding: '12px' }}>{d.id}</td>
+                <td style={{ padding: '12px' }}>{d.name}</td>
+                <td style={{ padding: '12px', display: 'flex', gap: '5px' }}>
+                  <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>内容確認</button>
+                  <button onClick={() => window.open('https://diagnosis-admin-questions.vercel.app/', '_blank')} style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>admin2</button>
+                  <button onClick={() => deleteDiagnosis(d.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>削除</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );
 }
 
-// 🌟 Appコンポーネント: ここでパスワード入力を画面として出す
+// --- 2. Appコンポーネント（パスワード画面） ---
 export default function App() {
-  const [pass, setPass] = useState('');
+  const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const checkPass = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pass === "tdiagnosise2026") {
+    if (passwordInput === "tdiagnosise2026") {
       setIsAuthenticated(true);
     } else {
       alert("パスワードが違います");
     }
   };
 
-  // パスワードが通るまでは入力画面を出す
+  // パスワードが通るまでは、このログインフォームだけを表示する
   if (!isAuthenticated) {
     return (
-      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f0f0' }}>
-        <form onSubmit={checkPass} style={{ padding: '40px', background: '#fff', borderRadius: '10px', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>
-          <h2>管理パスワード</h2>
+      <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5', fontFamily: 'sans-serif' }}>
+        <form onSubmit={handleLogin} style={{ padding: '40px', background: '#fff', borderRadius: '15px', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', textAlign: 'center' }}>
+          <h2 style={{ marginBottom: '20px', color: '#333' }}>管理ログイン</h2>
           <input 
             type="password" 
-            value={pass} 
-            onChange={(e) => setPass(e.target.value)} 
-            style={{ padding: '10px', width: '200px', marginBottom: '10px', display: 'block' }}
+            placeholder="パスワードを入力"
+            value={passwordInput} 
+            onChange={(e) => setPasswordInput(e.target.value)} 
+            style={{ padding: '12px', width: '250px', marginBottom: '20px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' }}
           />
-          <button type="submit" style={{ width: '100%', padding: '10px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '5px' }}>
+          <button type="submit" style={{ width: '100%', padding: '12px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>
             ログイン
           </button>
         </form>
@@ -133,6 +162,6 @@ export default function App() {
     );
   }
 
-  // 認証されたら本体を表示
+  // 認証されたら、本体を読み込む
   return <AdminMain />;
 }
