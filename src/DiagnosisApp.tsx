@@ -72,22 +72,32 @@ const onSelectChoice = (nextId: number, label: string) => {
     if (nextId) {
       setCurrentQuestionId(nextId);
     } else {
-      // 🌟 解析中アニメーションを開始
+      // 1. まず質問画面を消して、解析中画面を出す
       setIsCalculating(true);
+      setCurrentQuestionId(null);
 
       const counts: any = {};
       newHistory.forEach(l => { counts[l] = (counts[l] || 0) + 1; });
       const finalLabel = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
 
+      // 2. サーバーに結果を取りに行く
       fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/results/${finalLabel}`)
-        .then(res => res.json())
+        .then(res => {
+          if (!res.ok) throw new Error('Network response was not ok');
+          return res.json();
+        })
         .then(data => {
-          // 🌟 2秒間わざと待たせてから結果を表示する
+          // 3. データが正常に取れたら、2.5秒待ってから表示
           setTimeout(() => {
             setResult(data);
-            setIsCalculating(false); // ローディング終了
-            setCurrentQuestionId(null);
-          }, 2000);
+            setIsCalculating(false);
+          }, 2500);
+        })
+        .catch(err => {
+          console.error("結果取得エラー:", err);
+          setIsCalculating(false);
+          alert("申し訳ありません。データの取得に失敗しました。もう一度お試しください。");
+          window.location.reload(); // エラー時はリロード
         });
     }
   };
