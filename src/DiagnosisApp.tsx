@@ -137,18 +137,44 @@ const detailUrl = result.detail_url || diagnosisInfo.detail_url || "https://www.
 
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
+  // マウスがどのボタンに乗っているかを管理するための状態
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+
   useEffect(() => {
-    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`).then(res => res.json()).then(data => setChoices(data));
+    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
+      .then(res => res.json())
+      .then(data => setChoices(data));
   }, [questionId]);
+
   return (
     <>
       {choices.map((c: any) => (
-        <button key={c.id} onClick={() => onSelect(c.next_question_id, c.label)} style={{ padding: '20px', border: '2px solid #ff8e8e', borderRadius: '15px', background: '#fff', cursor: 'pointer', fontSize: '1.05em', textAlign: 'left', color: '#444' }}>
+        <button 
+          key={c.id} 
+          onClick={() => onSelect(c.next_question_id, c.label)} 
+          onMouseEnter={() => setHoveredId(c.id)} // マウスが乗った時
+          onMouseLeave={() => setHoveredId(null)} // マウスが離れた時
+          style={{ 
+            padding: '20px', 
+            border: '2px solid #ff8e8e', 
+            borderRadius: '15px', 
+            // 🌟 ホバー時は背景を薄いサーモンピンクに、通常は白にする
+            background: hoveredId === c.id ? '#fff0f0' : '#fff', 
+            cursor: 'pointer', 
+            fontSize: '1.05em', 
+            textAlign: 'left', 
+            color: '#444',
+            // 🌟 動きを滑らかにする設定
+            transition: 'all 0.2s ease',
+            // 🌟 ホバー時に少しだけボタンを浮かせる
+            transform: hoveredId === c.id ? 'translateY(-2px)' : 'translateY(0)',
+            boxShadow: hoveredId === c.id ? '0 4px 12px rgba(255, 142, 142, 0.2)' : 'none'
+          }}
+        >
           {c.choice_text}
         </button>
       ))}
     </>
   );
 };
-
 export default DiagnosisApp;
