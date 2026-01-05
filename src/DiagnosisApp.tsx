@@ -82,44 +82,61 @@ const DiagnosisApp: React.FC = () => {
     );
   }
 
-  if (result) {
+if (result) {
     const resultTitle = result.result_title || result.title || "診断結果";
-    const resultContent = result.result_description || result.content || "あなたにぴったりのメニューが見つかりました。";
+    const resultContent = result.result_description || result.content || "";
     
-    // 【最重要】diagnosisInfo から detail_url を確実に取得する
-    // 保存されたデータを確認するため、まずは diagnosisInfo.detail_url を最優先にします
-const detailUrl = result.detail_url || diagnosisInfo.detail_url || "https://www.google.com";
+    const detailUrl = result?.detail_url || diagnosisInfo.detail_url || "https://www.google.com";
     const lineFriendUrl = "https://line.me/R/ti/p/@https://lin.ee/oI5hgBo";
 
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
-        <div style={{ maxWidth: '500px', margin: '40px auto', textAlign: 'center', padding: '30px', backgroundColor: '#fff', borderRadius: '30px', boxShadow: '0 10px 30px rgba(0,0,0,0.08)' }}>
-          <h1 style={{ fontSize: '1.8em', color: '#333', marginBottom: '20px', fontWeight: 'bold' }}>{resultTitle}</h1>
+      <div style={{ minHeight: '100vh', backgroundColor: '#fffaf9', padding: '20px', fontFamily: '"Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif' }}>
+        <div style={{ maxWidth: '500px', margin: '30px auto', textAlign: 'center', padding: '40px 25px', backgroundColor: '#fff', borderRadius: '40px', boxShadow: '0 15px 40px rgba(255, 142, 142, 0.1)' }}>
+          
+          {/* サブタイトル */}
+          <p style={{ color: '#ff8e8e', fontWeight: 'bold', fontSize: '0.9em', letterSpacing: '0.1em', marginBottom: '10px' }}>YOUR DIAGNOSIS</p>
+          
+          {/* メインタイトル：文字間隔を広げておしゃれに */}
+          <h1 style={{ fontSize: '1.7em', color: '#444', marginBottom: '30px', fontWeight: 'bold', lineHeight: '1.4' }}>
+            {resultTitle}
+          </h1>
+
+          {/* 画像：角を丸くして柔らかい印象に */}
           {result.image_url && (
-            <div style={{ marginBottom: '20px', borderRadius: '20px', overflow: 'hidden' }}>
+            <div style={{ marginBottom: '30px', borderRadius: '25px', overflow: 'hidden', boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}>
               <img src={result.image_url} alt="Result" style={{ width: '100%', display: 'block' }} />
             </div>
           )}
-          <div style={{ textAlign: 'left', backgroundColor: '#fafafa', padding: '20px', borderRadius: '20px', marginBottom: '30px', border: '1px solid #f0f0f0' }}>
-            <p style={{ color: '#555', lineHeight: '1.8', fontSize: '1.05em', whiteSpace: 'pre-wrap' }}>{resultContent}</p>
+
+          {/* 説明文エリア：背景色をさらに薄くし、行間を広げて読みやすく */}
+          <div style={{ textAlign: 'left', backgroundColor: '#fffaf9', padding: '25px', borderRadius: '25px', marginBottom: '40px', border: '1px dashed #ffcaca' }}>
+            <p style={{ color: '#555', lineHeight: '2.0', fontSize: '1.05em', whiteSpace: 'pre-wrap', margin: 0 }}>
+              {resultContent}
+            </p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+          {/* ボタンエリア */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
             <a href={detailUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '18px', backgroundColor: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer' }}>
+              <button style={{ width: '100%', padding: '20px', backgroundColor: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 15px rgba(255, 142, 142, 0.3)', transition: 'transform 0.2s' }}>
                 結果をもっと詳しく見る
               </button>
             </a>
+            
             <a href={lineFriendUrl} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-              <button style={{ width: '100%', padding: '18px', backgroundColor: '#06C755', color: '#fff', border: 'none', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer' }}>
-                LINEで友だちになる
+              <button style={{ width: '100%', padding: '18px', backgroundColor: '#fff', color: '#06C755', border: '2px solid #06C755', borderRadius: '50px', fontSize: '1.1em', fontWeight: 'bold', cursor: 'pointer' }}>
+                LINEで相談してみる
               </button>
             </a>
           </div>
+
+          <button onClick={() => window.location.reload()} style={{ marginTop: '30px', background: 'none', border: 'none', color: '#aaa', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.9em' }}>
+            もう一度診断する
+          </button>
         </div>
       </div>
     );
   }
-
   if (currentQuestion) {
     return (
       <div style={{ minHeight: '100vh', backgroundColor: '#fdfbfb', padding: '20px', fontFamily: 'sans-serif' }}>
