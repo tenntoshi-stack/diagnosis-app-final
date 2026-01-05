@@ -11,28 +11,28 @@ interface DiagnosisSet {
 }
 
 function App() {
+  // 🌟 useState は必ず最初（関数の直下）にすべて並べる
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [newName, setNewName] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newDetailUrl, setNewDetailUrl] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisSet | null>(null);
 
+  // 🌟 パスワード認証とデータ取得を一つの useEffect で管理
   useEffect(() => {
     const password = prompt("管理パスワードを入力してください");
-    if (password === "tdiagnosise2026") { // ← ここにパスワードを設定
+    if (password === "tdiagnosise2026") { 
       setIsAuthenticated(true);
+      fetchDiagnoses(); // 認証成功後にデータを取得
     } else {
       alert("パスワードが違います");
       window.location.reload();
     }
   }, []);
-
-  if (!isAuthenticated) return <div>認証中...</div>;
-  const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  const [newName, setNewName] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newImageUrl, setNewImageUrl] = useState('');
-  const [newDetailUrl, setNewDetailUrl] = useState(''); // 追加済み
-  const [viewMode, setViewMode] = useState<'list' | 'edit'>('list');
-  const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisSet | null>(null);
 
   const fetchDiagnoses = () => {
     fetch('https://diagnosis-app-final.onrender.com/api/diagnoses')
@@ -43,10 +43,6 @@ function App() {
       })
       .catch(err => console.error("取得エラー:", err));
   };
-
-  useEffect(() => {
-    fetchDiagnoses();
-  }, []);
 
   const goToEdit = (diagnosis: DiagnosisSet) => {
     setSelectedDiagnosis(diagnosis);
@@ -69,8 +65,8 @@ function App() {
       body: JSON.stringify({ 
         name: newName, 
         description: newDescription, 
-        image_url: newImageUrl, // 👈 ここにカンマを追加しました
-        detail_url: newDetailUrl // 👈 正しく認識されるようになります
+        image_url: newImageUrl, 
+        detail_url: newDetailUrl 
       })
     })
     .then(() => {
@@ -90,6 +86,11 @@ function App() {
     .then(() => fetchDiagnoses())
     .catch(err => console.error("削除エラー:", err));
   };
+
+  // 🌟 認証がまだの場合は「認証中」のみ表示して、後ろの Hook 呼び出しを邪魔しない
+  if (!isAuthenticated) return <div style={{ padding: '20px' }}>認証中...</div>;
+
+  // --- 以下、元のデザインを完全維持 ---
 
   if (viewMode === 'edit' && selectedDiagnosis) {
     return (
@@ -172,8 +173,8 @@ function App() {
                       内容確認
                     </button>
                     <button 
-onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/`, '_blank')}
-style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
+                      onClick={() => window.open(`https://diagnosis-admin-questions.vercel.app/`, '_blank')}
+                      style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}
                     >
                       質問を編集 (admin2)
                     </button>
