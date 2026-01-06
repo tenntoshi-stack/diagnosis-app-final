@@ -115,7 +115,12 @@ function AdminMain() {
                 <td style={{ padding: '12px' }}>{d.name}</td>
                 <td style={{ padding: '12px', display: 'flex', gap: '5px' }}>
                   <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>内容確認</button>
-                  <button onClick={() => window.open('https://diagnosis-admin-questions.vercel.app/', '_blank')} style={{ backgroundColor: '#28a745', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>admin2</button>
+<button 
+  onClick={() => window.location.href = `https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`}
+  style={{ backgroundColor: '#28a745', color: 'white', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginLeft: '5px' }}
+>
+  表示確認
+</button>
                   <button onClick={() => deleteDiagnosis(d.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>削除</button>
                 </td>
               </tr>

@@ -1,15 +1,25 @@
 import { useState, useEffect } from 'react';
+// 🌟 react-router-dom を使って URL の数字を読み取ります
+import { useParams } from 'react-router-dom'; 
 
+export default function DiagnosisApp() {
+  const { id } = useParams(); // 🌟 これで URL の /diagnoses/3 の "3" を取得できます
+  const [diagnosisInfo, setDiagnosisInfo] = useState<any>(null);
 // --- サブパーツ: 選択肢 ---
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
-  useEffect(() => {
-    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
-      .then(res => res.json())
-      .then(setChoices)
-      .catch(err => console.error("Choices error:", err));
-  }, [questionId]);
+useEffect(() => {
+    // 🌟 id があればその番号を、なければ最新(latest)を取りに行くようにします
+    const targetId = id || 'latest';
+    const targetUrl = `https://diagnosis-app-final.onrender.com/api/diagnoses/${targetId}`;
 
+    fetch(targetUrl)
+      .then(res => res.json())
+      .then(data => {
+        if (data) setDiagnosisInfo(data);
+      })
+      .catch(err => console.error(err));
+  }, [id]); // 🌟 [id] を入れることで、番号が変わるたびに読み直します
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {choices.map((c: any) => (
