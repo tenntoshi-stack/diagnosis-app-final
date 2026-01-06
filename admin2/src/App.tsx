@@ -1,15 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import QuestionEditor from './QuestionEditor'; // 編集画面のメイン部品
+// 🌟 主役だと思われる UserDiagnosis を読み込みます
+import UserDiagnosis from './UserDiagnosis'; 
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* 🌟 これが重要：URLの最後にID（数字）がついた時にこの画面を開く設定 */}
-        <Route path="/:id" element={<QuestionEditor />} />
-        
-        {/* IDがない場合のバックアップ */}
-        <Route path="/" element={<QuestionEditor />} />
+        {/* URLの末尾にID（数字）がついても UserDiagnosis を表示する設定 */}
+        <Route path="/:id" element={<UserDiagnosis />} />
+        {/* 通常のアクセス時 */}
+        <Route path="/" element={<UserDiagnosis />} />
       </Routes>
     </Router>
   );
