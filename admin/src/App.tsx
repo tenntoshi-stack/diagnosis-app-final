@@ -11,7 +11,7 @@ interface DiagnosisSet {
   created_at: string;
 }
 
-// --- 1. 管理画面の本体（元の機能をすべてここに集約） ---
+// --- 1. 管理画面の本体 ---
 function AdminMain() {
   const [diagnoses, setDiagnoses] = useState<DiagnosisSet[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,7 +71,6 @@ function AdminMain() {
     .then(() => fetchDiagnoses());
   };
 
-  // 編集モードの表示
   if (viewMode === 'edit' && selectedDiagnosis) {
     return (
       <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
@@ -87,7 +86,6 @@ function AdminMain() {
     );
   }
 
-  // 一覧モードの表示
   return (
     <div style={{ padding: '30px', fontFamily: 'sans-serif', maxWidth: '800px', margin: '0 auto' }}>
       <h1>🛠️ 診断システム 管理パネル</h1>
@@ -115,12 +113,22 @@ function AdminMain() {
                 <td style={{ padding: '12px' }}>{d.name}</td>
                 <td style={{ padding: '12px', display: 'flex', gap: '5px' }}>
                   <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>内容確認</button>
-<button 
-  onClick={() => window.location.href = `https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`}
-  style={{ backgroundColor: '#28a745', color: 'white', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginLeft: '5px' }}
->
-  表示確認
-</button>
+                  
+                  <button 
+                    onClick={() => window.location.href = `https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`}
+                    style={{ backgroundColor: '#28a745', color: 'white', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+                  >
+                    表示確認
+                  </button>
+
+                  {/* 🌟 ここに正しく配置しました */}
+                  <button 
+                    onClick={() => window.location.href = `https://diagnosis-admin2-edit.vercel.app/${d.id}`}
+                    style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+                  >
+                    質問編集
+                  </button>
+
                   <button onClick={() => deleteDiagnosis(d.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>削除</button>
                 </td>
               </tr>
@@ -131,24 +139,8 @@ function AdminMain() {
     </div>
   );
 }
-{/* 既存の「表示確認」ボタンの隣に貼り付けます */}
-<button 
-  onClick={() => window.location.href = `https://diagnosis-admin2-edit.vercel.app/${d.id}`}
-  style={{ 
-    backgroundColor: '#ffc107', 
-    color: 'black', 
-    padding: '5px 10px', 
-    borderRadius: '4px', 
-    border: 'none', 
-    cursor: 'pointer', 
-    marginLeft: '5px',
-    fontWeight: 'bold'
-  }}
->
-  質問編集
-</button>
 
-// --- 2. Appコンポーネント（パスワード画面） ---
+// --- 2. Appコンポーネント ---
 export default function App() {
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -162,7 +154,6 @@ export default function App() {
     }
   };
 
-  // パスワードが通るまでは、このログインフォームだけを表示する
   if (!isAuthenticated) {
     return (
       <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5', fontFamily: 'sans-serif' }}>
@@ -183,6 +174,5 @@ export default function App() {
     );
   }
 
-  // 認証されたら、本体を読み込む
   return <AdminMain />;
 }
