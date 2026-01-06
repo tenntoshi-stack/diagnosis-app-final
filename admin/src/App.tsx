@@ -131,6 +131,22 @@ function AdminMain() {
     </div>
   );
 }
+{/* 既存の「表示確認」ボタンの隣に貼り付けます */}
+<button 
+  onClick={() => window.location.href = `https://diagnosis-admin2-edit.vercel.app/${d.id}`}
+  style={{ 
+    backgroundColor: '#ffc107', 
+    color: 'black', 
+    padding: '5px 10px', 
+    borderRadius: '4px', 
+    border: 'none', 
+    cursor: 'pointer', 
+    marginLeft: '5px',
+    fontWeight: 'bold'
+  }}
+>
+  質問編集
+</button>
 
 // --- 2. Appコンポーネント（パスワード画面） ---
 export default function App() {
