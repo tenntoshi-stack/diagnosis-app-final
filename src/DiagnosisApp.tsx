@@ -1,25 +1,16 @@
 import { useState, useEffect } from 'react';
-// 🌟 react-router-dom を使って URL の数字を読み取ります
-import { useParams } from 'react-router-dom'; 
+// 🌟 URLからIDを読み取るための部品を追加
+import { useParams } from 'react-router-dom';
 
-export default function DiagnosisApp() {
-  const { id } = useParams(); // 🌟 これで URL の /diagnoses/3 の "3" を取得できます
-  const [diagnosisInfo, setDiagnosisInfo] = useState<any>(null);
-// --- サブパーツ: 選択肢 ---
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
-useEffect(() => {
-    // 🌟 id があればその番号を、なければ最新(latest)を取りに行くようにします
-    const targetId = id || 'latest';
-    const targetUrl = `https://diagnosis-app-final.onrender.com/api/diagnoses/${targetId}`;
-
-    fetch(targetUrl)
+  useEffect(() => {
+    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
       .then(res => res.json())
-      .then(data => {
-        if (data) setDiagnosisInfo(data);
-      })
+      .then(setChoices)
       .catch(err => console.error(err));
-  }, [id]); // 🌟 [id] を入れることで、番号が変わるたびに読み直します
+  }, [questionId]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
       {choices.map((c: any) => (
@@ -31,8 +22,9 @@ useEffect(() => {
   );
 };
 
-// --- メイン: 診断アプリ ---
 export default function DiagnosisApp() {
+  // 🌟 URL末尾のID（3など）を取得します
+  const { id } = useParams();
   const [diagnosisInfo, setDiagnosisInfo] = useState<any>(null);
   const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
   const [history, setHistory] = useState<any[]>([]);
@@ -40,15 +32,19 @@ export default function DiagnosisApp() {
   const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
-    fetch('https://diagnosis-app-final.onrender.com/api/diagnoses/latest')
-      .then(res => res.text())
-      .then(text => {
-        if (!text) return;
-        const data = JSON.parse(text);
+    // 🌟 IDがあればその番号を、なければ最新(latest)を取得
+    const targetId = id || 'latest';
+    const targetUrl = `https://diagnosis-app-final.onrender.com/api/diagnoses/${targetId}`;
+
+    fetch(targetUrl)
+      .then(res => res.json())
+      .then(data => {
         if (data) setDiagnosisInfo(data);
       })
-      .catch(err => console.error("Fetch error:", err));
-  }, []);
+      .catch(err => {
+        console.error("Fetch error:", err);
+      });
+  }, [id]); // 🌟 IDが変わるたびに実行
 
   const startDiagnosis = () => {
     if (!diagnosisInfo) return;
@@ -78,7 +74,13 @@ export default function DiagnosisApp() {
 
   if (!diagnosisInfo) return <div style={{ textAlign: 'center', marginTop: '50px' }}>読み込み中...</div>;
   if (isCalculating) return <div style={{ textAlign: 'center', marginTop: '50px' }}>解析中...</div>;
-  if (result) return <div style={{ textAlign: 'center', padding: '20px' }}><h1>{result.result_title}</h1><p>{result.result_description}</p></div>;
+  if (result) return (
+    <div style={{ textAlign: 'center', padding: '20px' }}>
+      <h1>{result.result_title}</h1>
+      <p style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>{result.result_description}</p>
+      <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>最初に戻る</button>
+    </div>
+  );
 
   if (currentQuestionId) {
     return (
@@ -93,7 +95,8 @@ export default function DiagnosisApp() {
     <div style={{ padding: '40px', textAlign: 'center' }}>
       <h1>{diagnosisInfo.name}</h1>
       <p>{diagnosisInfo.description}</p>
-      <button onClick={startDiagnosis} style={{ padding: '20px 40px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px' }}>診断をはじめる</button>
+      {diagnosisInfo.image_url && <img src={diagnosisInfo.image_url} alt="Top" style={{ width: '100%', maxWidth: '400px', borderRadius: '10px', marginBottom: '20px' }} />}
+      <button onClick={startDiagnosis} style={{ padding: '20px 40px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px', cursor: 'pointer', fontSize: '1.2rem', fontWeight: 'bold' }}>診断をはじめる</button>
     </div>
   );
 }
