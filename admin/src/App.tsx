@@ -146,15 +146,33 @@ export default function App() {
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+// --- 新規登録の処理 ---
+  const handleRegister = () => {
+    if (!emailInput || !passwordInput) {
+      alert("メールアドレスとパスワードを入力してください");
+      return;
+    }
+    // ブラウザに保存（VS Code上にパスワードを固定しない）
+    localStorage.setItem('admin_user', JSON.stringify({ email: emailInput, password: passwordInput }));
+    alert("新規登録が完了しました！この情報でログインしてください。");
+  };
+
+  // --- ログインの処理 ---
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // 🌟 メールアドレスとパスワードの両方をチェックするように修正
-    // もしメールアドレスは何でも良い場合は passwordInput のチェックだけでOKです
-    if (emailInput && passwordInput === "tdiagnosise2026") {
-      setIsAuthenticated(true);
-    } else {
-      alert("メールアドレスを入力し、正しいパスワードを入力してください");
+    
+    // 保存されている情報を取得
+    const savedUser = localStorage.getItem('admin_user');
+    
+    if (savedUser) {
+      const { email, password } = JSON.parse(savedUser);
+      // 入力された内容と保存された内容を照合
+      if (emailInput === email && passwordInput === password) {
+        setIsAuthenticated(true);
+        return;
+      }
     }
+    alert("登録されている情報と一致しません。");
   };
 
   if (!isAuthenticated) {
@@ -163,25 +181,34 @@ export default function App() {
         <form onSubmit={handleLogin} style={{ padding: '40px', background: '#fff', borderRadius: '15px', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', textAlign: 'center' }}>
           <h2 style={{ marginBottom: '20px', color: '#333' }}>管理ログイン</h2>
           
-          {/* 🌟 メールアドレス入力欄を追加 */}
-<input 
-  type="email" 
-  placeholder="メールアドレスを入力"
-  value={emailInput}
-  onChange={(e) => setEmailInput(e.target.value)}
-  style={{ padding: '12px', width: '250px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', display: 'block' }}
-/>
+          <input 
+            type="email" 
+            placeholder="メールアドレス"
+            value={emailInput} 
+            onChange={(e) => setEmailInput(e.target.value)} 
+            style={{ padding: '12px', width: '250px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', display: 'block' }}
+            required
+          />
+
           <input 
             type="password" 
-            placeholder="パスワードを入力"
+            placeholder="パスワード"
             value={passwordInput} 
             onChange={(e) => setPasswordInput(e.target.value)} 
             style={{ padding: '12px', width: '250px', marginBottom: '20px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', display: 'block' }}
             required
           />
           
-          <button type="submit" style={{ width: '100%', padding: '12px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>
+          <button type="submit" style={{ width: '100%', padding: '12px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px', marginBottom: '10px' }}>
             ログイン
+          </button>
+
+          <button 
+            type="button" 
+            onClick={handleRegister}
+            style={{ width: '100%', padding: '12px', background: '#fff', color: '#ff8e8e', border: '2px solid #ff8e8e', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}
+          >
+            新規アカウント登録
           </button>
         </form>
       </div>
