@@ -1,18 +1,16 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom'; // Router をインポートから消す
 import DiagnosisApp from './DiagnosisApp';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Routes>
-          {/* 通常のアクセス用 */}
-          <Route path="/" element={<DiagnosisApp />} />
-          {/* 管理画面からのID付きアクセス用 */}
-          <Route path="/diagnoses/:id" element={<DiagnosisApp />} />
-        </Routes>
-      </div>
-    </Router>
+    // <Router> タグを削除（<div>から始める）
+    <div className="App">
+      <Routes>
+        <Route path="/" element={<DiagnosisApp />} />
+        <Route path="/diagnoses/:id" element={<DiagnosisApp />} />
+      </Routes>
+    </div>
+    // </Router> タグを削除
   );
 }
 
