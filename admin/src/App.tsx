@@ -142,15 +142,18 @@ function AdminMain() {
 
 // --- 2. Appコンポーネント ---
 export default function App() {
+  const [emailInput, setEmailInput] = useState(''); // 🌟 メールアドレス用の変数を追加
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === "tdiagnosise2026") {
+    // 🌟 メールアドレスとパスワードの両方をチェックするように修正
+    // もしメールアドレスは何でも良い場合は passwordInput のチェックだけでOKです
+    if (emailInput && passwordInput === "tdiagnosise2026") {
       setIsAuthenticated(true);
     } else {
-      alert("パスワードが違います");
+      alert("メールアドレスを入力し、正しいパスワードを入力してください");
     }
   };
 
@@ -159,13 +162,24 @@ export default function App() {
       <div style={{ height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: '#f0f2f5', fontFamily: 'sans-serif' }}>
         <form onSubmit={handleLogin} style={{ padding: '40px', background: '#fff', borderRadius: '15px', boxShadow: '0 8px 30px rgba(0,0,0,0.1)', textAlign: 'center' }}>
           <h2 style={{ marginBottom: '20px', color: '#333' }}>管理ログイン</h2>
+          
+          {/* 🌟 メールアドレス入力欄を追加 */}
+<input 
+  type="email" 
+  placeholder="メールアドレスを入力"
+  value={emailInput}
+  onChange={(e) => setEmailInput(e.target.value)}
+  style={{ padding: '12px', width: '250px', marginBottom: '15px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', display: 'block' }}
+/>
           <input 
             type="password" 
             placeholder="パスワードを入力"
             value={passwordInput} 
             onChange={(e) => setPasswordInput(e.target.value)} 
-            style={{ padding: '12px', width: '250px', marginBottom: '20px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' }}
+            style={{ padding: '12px', width: '250px', marginBottom: '20px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px', display: 'block' }}
+            required
           />
+          
           <button type="submit" style={{ width: '100%', padding: '12px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '16px' }}>
             ログイン
           </button>
