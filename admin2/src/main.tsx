@@ -1,20 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+// BrowserRouter, Routes, Route のインポートは不要になるので消してもOKです
 import App from './App'
-import UserView from './UserView'
+// UserView も App.tsx 側で管理するなら、ここでのインポートは不要です
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
-      <Routes>
-        {/* 管理画面のURL (http://localhost:5173/) */}
-        <Route path="/" element={<App />} />
-        
-        {/* お客様回答専用のURL (http://localhost:5173/diagnosis/1) */}
-        <Route path="/diagnosis/:id" element={<UserView />} />
-      </Routes>
-    </BrowserRouter>
+    {/* ↓ タグをすべて消して <App /> だけにする */}
+    <App />
   </React.StrictMode>,
 )
