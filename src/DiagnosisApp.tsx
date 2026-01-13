@@ -27,20 +27,35 @@ export default function DiagnosisApp() {
   const [result, setResult] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
-  useEffect(() => {
-    const targetId = id || 'latest';
-    fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${targetId}`)
-      .then(res => res.json())
-      .then(data => { if (data) setDiagnosisInfo(data); });
-  }, [id]);
+useEffect(() => {
+  const targetId = id || 'latest';
+  fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${targetId}`)
+    .then(res => {
+      // 1. サーバーから正常な応答がなかったらエラーを投げる
+      if (!res.ok) throw new Error('Network response was not ok');
+      // 2. テキストとして一度受け取ってから判定する
+      return res.text().then(text => text ? JSON.parse(text) : null);
+    })
+    .then(data => {
+      if (data) setDiagnosisInfo(data);
+    })
+    .catch(err => console.error("Fetch error:", err)); // エラーをキャッチして止まらないようにする
+}, [id]);
 
-  const startDiagnosis = () => {
-    if (!diagnosisInfo) return;
-    fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/questions`)
-      .then(res => res.json())
-      .then(data => { if (data.length > 0) setCurrentQuestionId(data[0].id); });
-  };
-
+const startDiagnosis = () => {
+  if (!diagnosisInfo) return;
+  fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/questions`)
+    .then(res => {
+      if (!res.ok) throw new Error('Network response was not ok');
+      return res.text().then(text => text ? JSON.parse(text) : []);
+    })
+    .then(data => {
+      if (data && data.length > 0) {
+        setCurrentQuestionId(data[0].id);
+      }
+    })
+    .catch(err => console.error("Start diagnosis error:", err));
+};
   const onSelectChoice = (nextId: number, label: string) => {
     const newHistory = [...history, label];
     setHistory(newHistory);
