@@ -28,20 +28,26 @@ export default function DiagnosisApp() {
   const [isCalculating, setIsCalculating] = useState(false);
 
 useEffect(() => {
-  const targetId = id || 'latest';
-  fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${targetId}`)
+  // すべての診断リストを取得しに行く
+  fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses`)
     .then(res => {
-      // 1. サーバーから正常な応答がなかったらエラーを投げる
       if (!res.ok) throw new Error('Network response was not ok');
-      // 2. テキストとして一度受け取ってから判定する
-      return res.text().then(text => text ? JSON.parse(text) : null);
+      return res.json();
     })
     .then(data => {
-      if (data) setDiagnosisInfo(data);
+      // 🌟 データが配列（リスト）で届くので、その中の1つ目を使う
+      if (Array.isArray(data) && data.length > 0) {
+        // もしURLにIDがある場合はそのIDのものを、なければ最初の1つ目を選択
+        const selected = id ? data.find((d: any) => d.id === parseInt(id)) || data[0] : data[0];
+        setDiagnosisInfo(selected);
+      }
     })
-    .catch(err => console.error("Fetch error:", err)); // エラーをキャッチして止まらないようにする
+    .catch(err => {
+      console.error("Fetch error:", err);
+      // エラー時も「読み込み中」を解除するために、仮の情報を入れる
+      setDiagnosisInfo({ name: "エラー", description: "データの読み込みに失敗しました" });
+    });
 }, [id]);
-
 const startDiagnosis = () => {
   if (!diagnosisInfo) return;
   fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/questions`)
