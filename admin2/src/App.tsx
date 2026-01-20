@@ -1,24 +1,25 @@
-import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
+import { Routes, Route, useParams } from 'react-router-dom'; // Routerを削除
 import UserDiagnosis from './UserDiagnosis';
 
-// 🌟 UserDiagnosis に ID を渡すための補助パーツ
+// 🌟 URLのIDを受け取って UserDiagnosis に渡すパーツ
 function UserDiagnosisWrapper() {
   const { id } = useParams<{ id: string }>();
-  // URL の ID を数字に変換。なければ 0 を入れる
   const diagnosisId = id ? parseInt(id, 10) : 0;
-
   return <UserDiagnosis diagnosisId={diagnosisId} />;
 }
 
 function App() {
-return (
-  <div className="App"> {/* Routerを消して、外側をdivだけにする */}
-    <Routes>
-      <Route path="/" element={<DiagnosisApp />} />
-      <Route path="/:id" element={<DiagnosisApp />} /> {/* ID付きで開くために必要 */}
-    </Routes>
-  </div>
-);
+  return (
+    <div className="App">
+      <Routes>
+        {/* 🌟 admin2では「DiagnosisApp」ではなく、
+          上で定義した「UserDiagnosisWrapper」を表示するように修正します 
+        */}
+        <Route path="/" element={<UserDiagnosisWrapper />} />
+        <Route path="/:id" element={<UserDiagnosisWrapper />} />
+      </Routes>
+    </div>
+  );
 }
 
 export default App;
