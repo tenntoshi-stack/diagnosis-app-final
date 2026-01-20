@@ -123,8 +123,8 @@ function AdminMain() {
 
                   {/* 🌟 ここに正しく配置しました */}
                   <button 
-                    onClick={() => window.location.href = `https://diagnosis-admin2-edit.vercel.app/${d.id}`}
-                    style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+onClick={() => window.location.href = `https://diagnosis-admin-questions.vercel.app/${d.id}`}
+style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
                   >
                     質問編集
                   </button>
