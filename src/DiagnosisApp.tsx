@@ -26,7 +26,6 @@ export default function DiagnosisApp() {
   const [history, setHistory] = useState<any[]>([]);
   const [result, setResult] = useState<any>(null);
   const [isCalculating, setIsCalculating] = useState(false);
-
 useEffect(() => {
   // すべての診断リストを取得しに行く
   fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses`)
@@ -35,17 +34,21 @@ useEffect(() => {
       return res.json();
     })
     .then(data => {
-      // 🌟 データが配列（リスト）で届くので、その中の1つ目を使う
       if (Array.isArray(data) && data.length > 0) {
-        // もしURLにIDがある場合はそのIDのものを、なければ最初の1つ目を選択
+        // IDが一致するもの、なければ最初の1つを選択
         const selected = id ? data.find((d: any) => d.id === parseInt(id)) || data[0] : data[0];
         setDiagnosisInfo(selected);
+        // 🌟 ここでセットされた時点で diagnosisInfo が null ではなくなるため、
+        // 下の方にある if (!diagnosisInfo) return ... の「読み込み中」が解除されます。
+      } else {
+        // データが空の場合も解除しないと「読み込み中」のままになるため、仮データをセット
+        setDiagnosisInfo({ name: "診断データがありません", description: "管理画面で作成してください" });
       }
     })
     .catch(err => {
       console.error("Fetch error:", err);
-      // エラー時も「読み込み中」を解除するために、仮の情報を入れる
-      setDiagnosisInfo({ name: "エラー", description: "データの読み込みに失敗しました" });
+      // 🌟 エラーが起きた時も「読み込み中」のままにならないよう、エラー表示用データをセット
+      setDiagnosisInfo({ name: "読み込みエラー", description: "サーバーからデータを取得できませんでした" });
     });
 }, [id]);
 const startDiagnosis = () => {
