@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
   const [choices, setChoices] = useState([]);
   useEffect(() => {
-    fetch(`https://diagnosis-app-final-fyfc.vercel.app//${questionId}/choices`)
+    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
       .then(res => res.json())
       .then(setChoices);
   }, [questionId]);
