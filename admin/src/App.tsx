@@ -112,15 +112,21 @@ function AdminMain() {
                 <td style={{ padding: '12px' }}>{d.id}</td>
                 <td style={{ padding: '12px' }}>{d.name}</td>
                 <td style={{ padding: '12px', display: 'flex', gap: '5px' }}>
-                  <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>内容確認</button>
-                  
-                  <button 
-                    onClick={() => window.location.href = `https://diagnosis-admin2-edit.vercel.app//${d.id}`}
-                    style={{ backgroundColor: '#28a745', color: 'white', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
-                  >
-                    表示確認
-                  </button>
+{/* 1. 「表示確認」ボタン：お客さんが見る診断画面へ飛ばす */}
+<button 
+  onClick={() => window.location.href = `https://diagnosis-app-final-fyfc.vercel.app/diagnosis/${d.id}`}
+  style={{ backgroundColor: '#28a745', color: 'white', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+>
+  表示確認
+</button>
 
+{/* 2. 「質問編集」ボタン（新設）：Admin2（編集画面）へ飛ばす */}
+<button 
+  onClick={() => window.location.href = `https://diagnosis-admin-questions.vercel.app/${d.id}`}
+  style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginLeft: '5px' }}
+>
+  質問編集
+</button>
                   {/* 🌟 ここに正しく配置しました */}
                   <button 
 onClick={() => window.location.href = `https://diagnosis-admin-questions.vercel.app/${d.id}`}
