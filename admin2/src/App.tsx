@@ -11,15 +11,14 @@ function UserDiagnosisWrapper() {
 }
 
 function App() {
-  return (
-    <Router>
-      <Routes>
-        {/* 🌟 Wrapper を通じて ID を渡すように設定 */}
-        <Route path="/:id" element={<UserDiagnosisWrapper />} />
-        <Route path="/" element={<UserDiagnosisWrapper />} />
-      </Routes>
-    </Router>
-  );
+return (
+  <div className="App"> {/* Routerを消して、外側をdivだけにする */}
+    <Routes>
+      <Route path="/" element={<DiagnosisApp />} />
+      <Route path="/:id" element={<DiagnosisApp />} /> {/* ID付きで開くために必要 */}
+    </Routes>
+  </div>
+);
 }
 
 export default App;

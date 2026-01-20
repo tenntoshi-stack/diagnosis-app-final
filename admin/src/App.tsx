@@ -115,7 +115,7 @@ function AdminMain() {
                   <button onClick={() => goToEdit(d)} style={{ backgroundColor: '#17a2b8', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>内容確認</button>
                   
                   <button 
-                    onClick={() => window.location.href = `https://diagnosis-app-final-fyfc.vercel.app/diagnoses/${d.id}`}
+                    onClick={() => window.location.href = `https://diagnosis-admin2-edit.vercel.app//${d.id}`}
                     style={{ backgroundColor: '#28a745', color: 'white', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
                   >
                     表示確認
