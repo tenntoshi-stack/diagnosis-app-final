@@ -8,18 +8,18 @@ function UserDiagnosisWrapper() {
   return <UserDiagnosis diagnosisId={diagnosisId} />;
 }
 
+// admin2/src/App.tsx の return 部分を以下に書き換え
 function App() {
   return (
     <div className="App">
       <Routes>
-        {/* 🌟 admin2では「DiagnosisApp」ではなく、
-          上で定義した「UserDiagnosisWrapper」を表示するように修正します 
-        */}
+        {/* IDがあってもなくても、とにかくこの画面を表示する設定にします */}
         <Route path="/" element={<UserDiagnosisWrapper />} />
         <Route path="/:id" element={<UserDiagnosisWrapper />} />
+        {/* 🌟 これを追加：予期せぬパスでも編集画面を開く */}
+        <Route path="*" element={<UserDiagnosisWrapper />} />
       </Routes>
     </div>
   );
 }
-
 export default App;
