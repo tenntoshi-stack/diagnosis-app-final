@@ -76,7 +76,7 @@ const startDiagnosis = () => {
       const counts: any = {};
       newHistory.forEach(l => { counts[l] = (counts[l] || 0) + 1; });
       const finalLabel = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-      
+    console.log("診断結果を取得するURL:", `https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/results/${finalLabel}`);  
       // 結果取得
       fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/results/${finalLabel}`)
         .then(res => {
@@ -110,8 +110,9 @@ const startDiagnosis = () => {
 
   if (result) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center' }}>
-        <h1>{result.result_title}</h1>
+// 診断結果表示部分などの div スタイル
+<div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#fff', minHeight: '100vh', color: '#333' }}>
+      <h1>{result.result_title}</h1>
         <p style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>{result.result_description}</p>
         <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '5px' }}>最初に戻る</button>
       </div>
