@@ -121,20 +121,14 @@ function AdminMain() {
 </button>
 
 {/* 2. 「質問編集」ボタン（新設）：Admin2（編集画面）へ飛ばす */}
+{/* 重複を削除し、この1つだけにします */}
+{/* admin/src/App.tsx のボタン部分 */}
 <button 
   onClick={() => window.location.href = `https://diagnosis-admin-questions.vercel.app/${d.id}`}
-  style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', marginLeft: '5px' }}
+  style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
 >
-  質問編集
+  質問・結果を編集
 </button>
-                  {/* 🌟 ここに正しく配置しました */}
-                  <button 
-onClick={() => window.location.href = `https://diagnosis-admin-questions.vercel.app/${d.id}`}
-style={{ backgroundColor: '#ffc107', color: 'black', padding: '5px 10px', borderRadius: '4px', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
-                  >
-                    質問編集
-                  </button>
-
                   <button onClick={() => deleteDiagnosis(d.id)} style={{ backgroundColor: '#dc3545', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>削除</button>
                 </td>
               </tr>
