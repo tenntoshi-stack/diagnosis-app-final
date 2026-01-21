@@ -6,20 +6,25 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
   const [resultData, setResultData] = useState<any>(null);
   const [historyStack, setHistoryStack] = useState<any[]>([]);
 
-  useEffect(() => { loadQuestion(null); }, []);
+  // 🌟 APIのベースURLを定義
+  const API_BASE = "https://diagnosis-app-final.onrender.com/api";
+
+  useEffect(() => { loadQuestion(null); }, [diagnosisId]);
 
   const loadQuestion = (questionId: number | null) => {
+    // 🌟 URLを本番環境用に修正
     const url = questionId 
-      ? `http://localhost:5000/api/questions/detail/${questionId}`
-      : `http://localhost:5000/api/diagnoses/${diagnosisId}/questions/first`;
+      ? `${API_BASE}/questions/detail/${questionId}`
+      : `${API_BASE}/diagnoses/${diagnosisId}/questions/first`;
 
     fetch(url).then(res => res.json()).then(data => {
       if (data && data.id) {
         setCurrentQuestion(data);
-        fetch(`http://localhost:5000/api/questions/${data.id}/choices`)
+        // 🌟 選択肢の取得URLも修正
+        fetch(`${API_BASE}/questions/${data.id}/choices`)
           .then(res => res.json()).then(setChoices);
       }
-    });
+    }).catch(err => console.error("質問取得エラー:", err));
   };
 
   const handleChoice = (choice: any) => {
@@ -27,12 +32,13 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
     if (choice.next_question_id && choice.next_question_id > 0) {
       loadQuestion(choice.next_question_id);
     } else {
-      fetch(`http://localhost:5000/api/diagnoses/${diagnosisId}/results`)
+      // 🌟 結果取得のURLも修正
+      fetch(`${API_BASE}/diagnoses/${diagnosisId}/results`)
         .then(res => res.json()).then(results => {
           const matched = results.find((r: any) => r.type_label === choice.label);
           setResultData(matched || { result_title: "診断完了", result_description: `あなたのタイプ: ${choice.label}` });
           setCurrentQuestion(null);
-        });
+        }).catch(err => console.error("結果取得エラー:", err));
     }
   };
 
@@ -42,12 +48,13 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
     const previousQuestion = newStack.pop();
     setHistoryStack(newStack);
     setCurrentQuestion(previousQuestion);
-    fetch(`http://localhost:5000/api/questions/${previousQuestion.id}/choices`).then(res => res.json()).then(setChoices);
+    // 🌟 戻る時のURLも修正
+    fetch(`${API_BASE}/questions/${previousQuestion.id}/choices`).then(res => res.json()).then(setChoices);
   };
 
   // --- 高級感を出すコンテナ ---
   const Container = ({ children }: { children: React.ReactNode }) => (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '20px 0' }}>
       <div style={{ 
         width: '100%', maxWidth: '460px', backgroundColor: 'rgba(255, 255, 255, 0.95)',
         borderRadius: '40px', boxShadow: '0 40px 80px rgba(0,0,0,0.08)',
@@ -79,21 +86,22 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
           <div style={{ display: 'grid', gap: '15px' }}>
             {resultData.recommend_url && (
               <a href={resultData.recommend_url} target="_blank" rel="noreferrer" style={{ 
-                padding: '20px', backgroundColor: '#06C755', color: '#fff', textDecoration: 'none', borderRadius: '100px', fontWeight: '600', fontSize: '16px', boxShadow: '0 10px 20px rgba(6,199,85,0.2)'
+                padding: '20px', backgroundColor: '#06C755', color: '#fff', textDecoration: 'none', borderRadius: '100px', fontWeight: '600', fontSize: '16px', boxShadow: '0 10px 20px rgba(6,199,85,0.2)', textAlign: 'center'
               }}>💬 LINEで予約・相談する</a>
             )}
             {resultData.detail_url && (
               <a href={resultData.detail_url} target="_blank" rel="noreferrer" style={{ 
-                padding: '18px', backgroundColor: '#fff', color: '#d4a373', border: '1.5px solid #d4a373', textDecoration: 'none', borderRadius: '100px', fontWeight: '600', fontSize: '16px'
+                padding: '18px', backgroundColor: '#fff', color: '#d4a373', border: '1.5px solid #d4a373', textDecoration: 'none', borderRadius: '100px', fontWeight: '600', fontSize: '16px', textAlign: 'center'
               }}>🔍 詳しく見る</a>
             )}
+            <button onClick={() => window.location.reload()} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', marginTop: '10px' }}>もう一度診断する</button>
           </div>
         </div>
       </Container>
     );
   }
 
-  if (!currentQuestion) return <div style={{ color: '#ccc' }}>Loading...</div>;
+  if (!currentQuestion) return <div style={{ textAlign: 'center', padding: '50px', color: '#666' }}>Loading Diagnosis...</div>;
 
   return (
     <Container>
