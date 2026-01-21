@@ -24,36 +24,53 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
   const addQuestion = async () => {
     const text = prompt("新しい質問文を入力してください");
     if (!text) return;
-    const res = await fetch(`${API_BASE}/questions`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ diagnosis_set_id: diagnosisId, question_text: text })
-    });
-    if (res.ok) { alert("質問を追加しました"); loadData(); }
+    try {
+      const res = await fetch(`${API_BASE}/questions`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ diagnosis_set_id: diagnosisId, question_text: text })
+      });
+      if (res.ok) { alert("質問を追加しました"); loadData(); }
+    } catch (e) { alert("質問の保存に失敗しました"); }
   };
 
-  // 選択肢の追加
+  // 選択肢の追加 (ロジック設定)
   const addChoice = async (qId: number) => {
     const text = prompt("選択肢のテキスト (例: はい)");
+    if (!text) return;
     const nextId = prompt("次に進む質問ID (結果へ行くなら 0)");
     const label = prompt("結果ラベル (結果へ行く場合のみ入力 例: A)");
-    if (!text) return;
-    const res = await fetch(`${API_BASE}/choices`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        question_id: qId, choice_text: text, 
-        next_question_id: parseInt(nextId || "0"), label: label || "" 
-      })
-    });
-    if (res.ok) { alert("選択肢を保存しました"); loadData(); }
+    
+    try {
+      const res = await fetch(`${API_BASE}/choices`, {
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          question_id: qId, 
+          choice_text: text, 
+          next_question_id: parseInt(nextId || "0"), 
+          label: label || "" 
+        })
+      });
+      if (res.ok) { 
+        alert("選択肢とロジックを保存しました"); 
+        loadData(); 
+      } else {
+        alert("保存に失敗しました。入力内容を確認してください。");
+      }
+    } catch (e) { 
+      alert("通信エラーが発生しました"); 
+    }
   };
 
-  // 結果データの更新（保存ボタン用）
+  // 結果データの更新
   const updateResult = async (id: number, data: any) => {
-    const res = await fetch(`${API_BASE}/results/${id}`, {
-      method: 'PUT', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-    if (res.ok) alert("結果を保存しました");
+    try {
+      const res = await fetch(`${API_BASE}/results/${id}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) alert("結果を保存しました");
+    } catch (e) { alert("結果の保存に失敗しました"); }
   };
 
   return (
@@ -72,7 +89,7 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
           {questions.map(q => (
             <div key={q.id} style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px', borderRadius: '6px' }}>
               <div style={{ fontWeight: 'bold' }}>[質問ID: {q.id}] {q.question_text}</div>
-              <button onClick={() => addChoice(q.id)} style={{ marginTop: '10px', cursor: 'pointer' }}>+ 選択肢を追加</button>
+              <button onClick={() => addChoice(q.id)} style={{ marginTop: '10px', backgroundColor: '#eee', border: '1px solid #ccc', padding: '5px 10px', cursor: 'pointer', borderRadius: '4px' }}>+ 選択肢を追加</button>
             </div>
           ))}
         </div>
@@ -96,6 +113,10 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
               <label style={{ fontSize: '12px', display: 'block' }}>LINE登録URL</label>
               <input type="text" id={`r-${r.id}`} defaultValue={r.recommend_url} style={{ width: '100%', marginBottom: '10px' }} />
 
+              {/* 🌟 復活した「その他のURL」 */}
+              <label style={{ fontSize: '12px', display: 'block' }}>その他のURL（詳細ページなど）</label>
+              <input type="text" id={`u-${r.id}`} defaultValue={r.detail_url} style={{ width: '100%', marginBottom: '10px' }} />
+
               <button 
                 onClick={() => {
                   const data = {
@@ -103,6 +124,7 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
                     result_description: (document.getElementById(`d-${r.id}`) as HTMLTextAreaElement).value,
                     image_url: (document.getElementById(`i-${r.id}`) as HTMLInputElement).value,
                     recommend_url: (document.getElementById(`r-${r.id}`) as HTMLInputElement).value,
+                    detail_url: (document.getElementById(`u-${r.id}`) as HTMLInputElement).value,
                   };
                   updateResult(r.id, data);
                 }}
