@@ -4,6 +4,7 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
   const [diagnosisTitle, setDiagnosisTitle] = useState("");
   const [questions, setQuestions] = useState<any[]>([]);
   const [results, setResults] = useState<any[]>([]);
+  const [allChoices, setAllChoices] = useState<any[]>([]); // 🌟 選択肢を別で管理
   const API_BASE = "https://diagnosis-app-final.onrender.com/api";
 
   const loadData = () => {
@@ -13,9 +14,11 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
       const current = list.find((d: any) => d.id === diagnosisId);
       if (current) setDiagnosisTitle(current.title);
     });
-    // 質問一覧（選択肢を含む）と結果一覧を取得
+    // 質問と結果を取得
     fetch(`${API_BASE}/diagnoses/${diagnosisId}/questions`).then(res => res.json()).then(setQuestions);
     fetch(`${API_BASE}/diagnoses/${diagnosisId}/results`).then(res => res.json()).then(setResults);
+    // 🌟 全ての選択肢を個別に取得（表示を確実にするため）
+    fetch(`${API_BASE}/choices`).then(res => res.json()).then(setAllChoices);
   };
 
   useEffect(() => { loadData(); }, [diagnosisId]);
@@ -78,7 +81,7 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
       </header>
 
       <div style={{ display: 'flex', gap: '20px' }}>
-        {/* 左側：質問と登録済みの選択肢を可視化 */}
+        {/* 左側：質問とロジック作成 */}
         <div style={{ flex: 1, backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
             <h2>1. 質問と分岐ロジック</h2>
@@ -89,18 +92,14 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
             <div key={q.id} style={{ border: '1px solid #ddd', padding: '15px', marginBottom: '15px', borderRadius: '6px' }}>
               <div style={{ fontWeight: 'bold', fontSize: '16px', color: '#333' }}>[ID: {q.id}] {q.question_text}</div>
               
-              {/* 🌟 選択肢のリスト表示部分 */}
               <div style={{ marginTop: '10px', backgroundColor: '#f9f9f9', padding: '10px', borderRadius: '4px' }}>
                 <span style={{ fontSize: '12px', color: '#888' }}>設定済みロジック:</span>
-                {q.choices && q.choices.length > 0 ? (
-                  q.choices.map((c: any) => (
-                    <div key={c.id} style={{ fontSize: '14px', padding: '4px 0', borderBottom: '1px dashed #eee' }}>
-                      ・{c.choice_text} → {c.next_question_id === 0 ? <span style={{color:'red'}}>結果[{c.label}]</span> : `次質問ID[${c.next_question_id}]`}
-                    </div>
-                  ))
-                ) : (
-                  <div style={{ fontSize: '12px', color: '#ccc' }}>選択肢がありません</div>
-                )}
+                {/* 🌟 取得した全選択肢の中から、この質問に紐づくものだけを表示 */}
+                {allChoices.filter(c => c.question_id === q.id).map(c => (
+                  <div key={c.id} style={{ fontSize: '14px', padding: '4px 0', borderBottom: '1px dashed #eee' }}>
+                    ・{c.choice_text} → {c.next_question_id === 0 ? <span style={{color:'red'}}>結果[{c.label}]</span> : `次質問ID[${c.next_question_id}]`}
+                  </div>
+                ))}
               </div>
 
               <button onClick={() => addChoice(q.id)} style={{ marginTop: '10px', fontSize: '12px', padding: '5px 10px', cursor: 'pointer' }}>+ 選択肢を追加</button>
@@ -108,7 +107,7 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
           ))}
         </div>
 
-        {/* 右側：結果詳細設定（全てのURL欄を完備） */}
+        {/* 右側：結果詳細設定 */}
         <div style={{ flex: 1, backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '15px' }}>
             <h2>2. 結果ページ詳細</h2>
@@ -131,7 +130,6 @@ export default function UserDiagnosis({ diagnosisId }: { diagnosisId: number }) 
               <label style={{ fontSize: '11px', display: 'block' }}>LINE登録URL</label>
               <input type="text" id={`r-${r.id}`} defaultValue={r.recommend_url} style={{ width: '100%', marginBottom: '10px' }} />
 
-              {/* 🌟 復活：その他のURL（詳細ページ） */}
               <label style={{ fontSize: '11px', display: 'block' }}>その他のURL（詳細ページなど）</label>
               <input type="text" id={`u-${r.id}`} defaultValue={r.detail_url} style={{ width: '100%', marginBottom: '10px' }} />
 
