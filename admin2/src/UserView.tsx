@@ -18,8 +18,8 @@ export default function UserView() {
     }}>
       <div style={{ width: '100%', maxWidth: '500px', animation: 'fadeIn 1s ease-out' }}>
         {id ? (
-          <UserDiagnosis diagnosisId={parseInt(id)} />
-        ) : (
+<UserDiagnosis />
+) : (
           <p style={{ textAlign: 'center', color: '#999' }}>診断が見つかりません</p>
         )}
       </div>

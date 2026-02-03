@@ -48,95 +48,59 @@ db.serialize(() => {
 
 // --- API ROUTES ---
 
-// 診断一覧
-app.get('/api/diagnoses', (req, res) => {
-    db.all("SELECT * FROM diagnosis_sets", [], (err, rows) => res.json(rows));
-});
-// 特定の診断セットの詳細（名前・説明・画像）を取得
-app.get('/api/diagnoses/:id', (req, res) => {
-    const { id } = req.params;
-    db.get("SELECT * FROM diagnosis_sets WHERE id = ?", [id], (err, row) => {
+// --- 1. 質問の一覧取得 (絞り込み機能付き) ---
+app.get('/api/questions', (req, res) => {
+    const { diagnosis_id } = req.query;
+    // diagnosis_idがあれば絞り込み、なければ全件出す
+    const sql = diagnosis_id 
+        ? "SELECT * FROM questions WHERE diagnosis_id = ?" 
+        : "SELECT * FROM questions";
+    const params = diagnosis_id ? [diagnosis_id] : [];
+
+    db.all(sql, params, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        res.json(row);
+        res.json(rows || []);
     });
 });
 
-// --- 選択肢(Choices)テーブルがなければ作成 ---
-db.run(`CREATE TABLE IF NOT EXISTS choices (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  question_id INTEGER,
-  choice_text TEXT,
-  next_question_id INTEGER,
-  label TEXT
-)`);
-
-// --- 選択肢(Choices)の取得と保存の窓口 ---
-
-// 全ての選択肢を取得
-app.get('/api/choices', (req, res) => {
-  db.all('SELECT * FROM choices', [], (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json(rows || []);
-  });
-});
-
-// 新しい選択肢を保存
-app.post('/api/choices', (req, res) => {
-  const { question_id, choice_text, next_question_id, label } = req.body;
-  db.run(
-    `INSERT INTO choices (question_id, choice_text, next_question_id, label) VALUES (?, ?, ?, ?)`,
-    [question_id, choice_text, next_question_id, label],
-    function(err) {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json({ id: this.lastID });
-    }
-  );
-});
-
-// --- 削除用APIの追加 ---
-
-// 選択肢（ロジック）を削除
-app.delete('/api/choices/:id', (req, res) => {
-  db.run("DELETE FROM choices WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Deleted" });
-  });
-});
-
-// 質問を削除
-app.delete('/api/questions/:id', (req, res) => {
-  db.run("DELETE FROM questions WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Deleted" });
-  });
-});
-
-// 結果ラベルを削除
-app.delete('/api/results/:id', (req, res) => {
-  db.run("DELETE FROM results WHERE id = ?", [req.params.id], (err) => {
-    if (err) return res.status(500).json({ error: err.message });
-    res.json({ message: "Deleted" });
-  });
-});
-// 診断セットの作成・更新（上書き対応）
-app.post('/api/diagnoses', (req, res) => {
-    const { id, name, description, image_url } = req.body;
-
-    if (id) {
-        // IDがある場合は「更新」
-        const sql = `UPDATE diagnosis_sets SET name = ?, description = ?, image_url = ? WHERE id = ?`;
-        db.run(sql, [name, description, image_url, id], function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: '診断設定を更新しました' });
-        });
-    } else {
-        // IDがない場合は「新規作成」
-        const sql = `INSERT INTO diagnosis_sets (name, description, image_url) VALUES (?, ?, ?)`;
-        db.run(sql, [name, description, image_url], function(err) {
+// --- 2. 質問の新規保存 ---
+app.post('/api/questions', (req, res) => {
+    const { diagnosis_id, question_text } = req.body;
+    db.run(
+        "INSERT INTO questions (diagnosis_id, question_text) VALUES (?, ?)",
+        [diagnosis_id, question_text],
+        function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
-        });
-    }
+        }
+    );
+});
+
+// --- 3. 結果ラベルの一覧取得 (絞り込み機能付き) ---
+app.get('/api/results', (req, res) => {
+    const { diagnosis_id } = req.query;
+    const sql = diagnosis_id 
+        ? "SELECT * FROM results WHERE diagnosis_id = ?" 
+        : "SELECT * FROM results";
+    const params = diagnosis_id ? [diagnosis_id] : [];
+
+    db.all(sql, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows || []);
+    });
+});
+
+// --- 4. 結果ラベルの新規保存 ---
+app.post('/api/results', (req, res) => {
+    const { diagnosis_id, label, title, description, image_url, external_url } = req.body;
+    db.run(
+        "INSERT INTO results (diagnosis_id, label, title, description, image_url, external_url) VALUES (?, ?, ?, ?, ?, ?)",
+        [diagnosis_id, label, title, description, image_url, external_url],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
+        }
+    );
 });
 // 質問操作
 app.get('/api/diagnoses/:id/questions', (req, res) => {

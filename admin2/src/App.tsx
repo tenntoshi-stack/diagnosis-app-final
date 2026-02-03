@@ -13,7 +13,7 @@ function App() {
     <div className="App">
       {/* 🌟 BrowserRouterを必要とする部品（Routesなど）を一切使わないので、
            main.tsxでエラーが出ることもなくなります */}
-      <UserDiagnosis diagnosisId={diagnosisId} />
+<UserDiagnosis />
     </div>
   );
 }
