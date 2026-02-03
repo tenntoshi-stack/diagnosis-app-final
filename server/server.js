@@ -60,6 +60,38 @@ app.get('/api/diagnoses/:id', (req, res) => {
         res.json(row);
     });
 });
+
+// --- 選択肢(Choices)テーブルがなければ作成 ---
+db.run(`CREATE TABLE IF NOT EXISTS choices (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  question_id INTEGER,
+  choice_text TEXT,
+  next_question_id INTEGER,
+  label TEXT
+)`);
+
+// --- 選択肢(Choices)の取得と保存の窓口 ---
+
+// 全ての選択肢を取得
+app.get('/api/choices', (req, res) => {
+  db.all('SELECT * FROM choices', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows || []);
+  });
+});
+
+// 新しい選択肢を保存
+app.post('/api/choices', (req, res) => {
+  const { question_id, choice_text, next_question_id, label } = req.body;
+  db.run(
+    `INSERT INTO choices (question_id, choice_text, next_question_id, label) VALUES (?, ?, ?, ?)`,
+    [question_id, choice_text, next_question_id, label],
+    function(err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ id: this.lastID });
+    }
+  );
+});
 // 診断セットの作成・更新（上書き対応）
 app.post('/api/diagnoses', (req, res) => {
     const { id, name, description, image_url } = req.body;
