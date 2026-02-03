@@ -10,40 +10,40 @@ const db = new sqlite3.Database('./diagnosis.db');
 
 // 起動時にテーブルとカラムの存在を確認
 db.serialize(() => {
-
-    // テーブル作成
-// 診断セットテーブル（説明と画像URLを追加した新しい設定）
+    // 1. 診断セットテーブル
     db.run(`CREATE TABLE IF NOT EXISTS diagnosis_sets (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
         name TEXT,
         description TEXT,
         image_url TEXT
-    )`, () => {
-        // すでにテーブルがある場合、新しいカラム（列）を追加する命令
-        db.run("ALTER TABLE diagnosis_sets ADD COLUMN description TEXT", (err) => {
-            if (!err) console.log("Added description column to diagnosis_sets.");
-        });
-        db.run("ALTER TABLE diagnosis_sets ADD COLUMN image_url TEXT", (err) => {
-            if (!err) console.log("Added image_url column to diagnosis_sets.");
-        });
-    });
-    db.run(`CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, diagnosis_set_id INTEGER, question_text TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS choices (id INTEGER PRIMARY KEY AUTOINCREMENT, question_id INTEGER, choice_text TEXT, next_question_id INTEGER, label TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS diagnosis_results (
+    )`);
+
+    // 2. 質問テーブル
+    db.run(`CREATE TABLE IF NOT EXISTS questions (
         id INTEGER PRIMARY KEY AUTOINCREMENT, 
-        diagnosis_set_id INTEGER, 
-        type_label TEXT, 
-        result_title TEXT, 
-        result_description TEXT, 
-        recommend_url TEXT, 
+        diagnosis_id INTEGER, 
+        question_text TEXT
+    )`);
+
+    // 3. 選択肢テーブル
+    db.run(`CREATE TABLE IF NOT EXISTS choices (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        question_id INTEGER, 
+        choice_text TEXT, 
+        next_question_id INTEGER, 
+        label TEXT
+    )`);
+
+    // 4. 結果テーブル (カラム名を管理画面に合わせました)
+    db.run(`CREATE TABLE IF NOT EXISTS results (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, 
+        diagnosis_id INTEGER, 
+        label TEXT, 
+        title TEXT, 
+        description TEXT, 
         image_url TEXT,
-        detail_url TEXT
-    )`, () => {
-        // もし古いDBで detail_url がない場合は追加する
-        db.run("ALTER TABLE diagnosis_results ADD COLUMN detail_url TEXT", (err) => {
-            if (!err) console.log("Added detail_url column.");
-        });
-    });
+        external_url TEXT
+    )`);
 });
 
 // --- API ROUTES ---
