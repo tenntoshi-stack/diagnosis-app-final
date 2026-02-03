@@ -92,6 +92,32 @@ app.post('/api/choices', (req, res) => {
     }
   );
 });
+
+// --- 削除用APIの追加 ---
+
+// 選択肢（ロジック）を削除
+app.delete('/api/choices/:id', (req, res) => {
+  db.run("DELETE FROM choices WHERE id = ?", [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Deleted" });
+  });
+});
+
+// 質問を削除
+app.delete('/api/questions/:id', (req, res) => {
+  db.run("DELETE FROM questions WHERE id = ?", [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Deleted" });
+  });
+});
+
+// 結果ラベルを削除
+app.delete('/api/results/:id', (req, res) => {
+  db.run("DELETE FROM results WHERE id = ?", [req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: "Deleted" });
+  });
+});
 // 診断セットの作成・更新（上書き対応）
 app.post('/api/diagnoses', (req, res) => {
     const { id, name, description, image_url } = req.body;
