@@ -47,24 +47,37 @@ function AdminMain() {
     fetchDiagnoses();
   };
 
-  const createDiagnosis = (e: React.FormEvent) => {
+const createDiagnosis = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName.trim()) return;
+
     fetch('https://diagnosis-app-final.onrender.com/api/diagnoses', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        name: newName, description: newDescription, 
-        image_url: newImageUrl, detail_url: newDetailUrl 
+        name: newName, 
+        description: newDescription, 
+        image_url: newImageUrl, 
+        detail_url: newDetailUrl 
       })
     })
+    .then(res => res.json()) // レスポンスを待つ
     .then(() => {
-      setNewName(''); setNewDescription(''); setNewImageUrl(''); setNewDetailUrl('');
-      fetchDiagnoses();
+      // フォームを空にする
+      setNewName(''); 
+      setNewDescription(''); 
+      setNewImageUrl(''); 
+      setNewDetailUrl('');
+      
       alert('診断セットを作成しました！');
-    });
+      
+      // 0.5秒だけ待ってから一覧を再取得（Renderの書き込み時間を稼ぐ）
+      setTimeout(() => {
+        fetchDiagnoses();
+      }, 500);
+    })
+    .catch(err => alert("作成に失敗しました: " + err));
   };
-
   const deleteDiagnosis = (id: number) => {
     if (!confirm("本当に削除しますか？")) return;
     fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${id}`, { method: 'DELETE' })

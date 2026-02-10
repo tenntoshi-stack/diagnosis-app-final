@@ -50,17 +50,26 @@ const UserDiagnosis: React.FC = () => {
     fetchData();
   };
 
-  const addChoice = async (qId: number) => {
-    const text = window.prompt("回答内容 (例: はい)");
-    if (!text) return;
+const addChoice = async (qId: number) => {
+    // 1つずつ順番に質問（ポップアップ）を出します
+    const text = window.prompt("回答内容を入力してください (例: はい)");
+    if (!text) return; // 回答内容が空なら中止
+
+    const nextId = window.prompt("次に飛ばす【質問ID】を入力してください (結果へ送る場合は空欄でOK)");
+    const label = window.prompt("表示させる【結果ラベル】を入力してください (次の質問へ送る場合は空欄でOK)");
+
     await fetch(`${API_BASE}/choices`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question_id: qId, choice_text: text, next_question_id: null, label: "" })
+      body: JSON.stringify({ 
+        question_id: qId, 
+        choice_text: text, 
+        next_question_id: nextId ? parseInt(nextId) : null, 
+        label: label || "" 
+      })
     });
-    fetchData();
+    fetchData(); // 画面を更新
   };
-
   const deleteChoice = async (cId: number) => {
     await fetch(`${API_BASE}/choices/${cId}`, { method: 'DELETE' });
     fetchData(); 
