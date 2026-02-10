@@ -1,12 +1,11 @@
 import { useParams } from 'react-router-dom';
-import UserDiagnosis from './UserDiagnosis';
+import DiagnosisPlayer from './DiagnosisPlayer';
 
 export default function UserView() {
   const { id } = useParams();
   
   return (
     <div style={{ 
-      // 柔らかいベージュのグラデーションで高級感を演出
       background: 'linear-gradient(135deg, #fdf8f8 0%, #f4ece1 100%)', 
       minHeight: '100vh',
       display: 'flex',
@@ -18,8 +17,9 @@ export default function UserView() {
     }}>
       <div style={{ width: '100%', maxWidth: '500px', animation: 'fadeIn 1s ease-out' }}>
         {id ? (
-<UserDiagnosis />
-) : (
+          /* ここを修正しました！ */
+          <DiagnosisPlayer />
+        ) : (
           <p style={{ textAlign: 'center', color: '#999' }}>診断が見つかりません</p>
         )}
       </div>
