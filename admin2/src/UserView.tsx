@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import DiagnosisPlayer from './DiagnosisPlayer';
+import DiagnosisPlayer from './DiagnosisPlayer'; // 新しい部品を読み込む
 
 export default function UserView() {
   const { id } = useParams();
@@ -17,7 +17,7 @@ export default function UserView() {
     }}>
       <div style={{ width: '100%', maxWidth: '500px', animation: 'fadeIn 1s ease-out' }}>
         {id ? (
-          /* ここを修正しました！ */
+          /* ここが重要！必ず DiagnosisPlayer になっている必要があります */
           <DiagnosisPlayer />
         ) : (
           <p style={{ textAlign: 'center', color: '#999' }}>診断が見つかりません</p>
