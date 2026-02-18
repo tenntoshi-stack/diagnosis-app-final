@@ -7,3 +7,10 @@ Content-Type: application/json
 }
 ### 診断セットの削除 (DELETEリクエスト)
 DELETE http://localhost:5000/api/diagnoses/2
+### 診断セットの更新 (公開に設定)
+PATCH http://localhost:5000/api/diagnoses/1
+Content-Type: application/json
+
+{
+  "is_public": 1
+}
