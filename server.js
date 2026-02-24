@@ -27,24 +27,25 @@ db.serialize(() => {
 // --- 🌟 パスワード確認窓口 ---
 app.all('/api/verify-password', (req, res) => {
     try {
-        const password = req.body.password || req.query.password;
+        // req.body が undefined の場合に備えて保護を追加
+        const password = (req.body && req.body.password) || (req.query && req.query.password);
         const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin1234"; 
         
-        if (req.method === 'GET' && !req.query.password) {
+        // ブラウザで直接開いた（GET）場合の案内
+        if (req.method === 'GET' && !password) {
             return res.send("✅ パスワード確認窓口は正常に動作しています。VercelからPOST送信してください。");
         }
 
         if (password === ADMIN_PASSWORD) {
-            res.json({ success: true });
+            return res.json({ success: true });
         } else {
-            res.status(401).json({ success: false, message: "パスワード不一致" });
+            return res.status(401).json({ success: false, message: "パスワード不一致" });
         }
     } catch (error) {
-        // エラーの内容をブラウザに返す（デバッグ用）
-        res.status(500).json({ error: error.message });
+        console.error("Auth error:", error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
-
 // その他のAPI（省略していますが、元のコードのままでOKです）
 app.get('/api/diagnoses', (req, res) => {
     db.all("SELECT * FROM diagnosis_sets", [], (err, rows) => res.json(rows || []));
