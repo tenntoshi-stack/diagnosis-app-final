@@ -1,55 +1,69 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const fs = require('fs');
 const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
-
 const app = express();
+const DATA_FILE = './diagnoses.json'; // 複数保存用のファイル名
 
-app.use(cors({ origin: '*', methods: ['GET', 'POST'], allowedHeaders: ['Content-Type'] }));
 app.use(express.json());
+app.use(cors());
 
-// --- 🌟 データベースの保存場所を確実に確保する ---
-// Renderのような環境でもエラーにならないよう、絶対パスを指定します
-const dbPath = path.resolve(__dirname, 'database.sqlite');
-const db = new sqlite3.Database(dbPath, (err) => {
-    if (err) console.error("Database opening error: ", err);
+// 1. すべての診断の「一覧」を取得（ダッシュボード用）
+app.get('/all-diagnoses', (req, res) => {
+  if (!fs.existsSync(DATA_FILE)) return res.json([]);
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  
+  // フロントエンドの一覧画面に必要な情報だけを抜粋して返す
+  const list = Object.keys(data).map(id => ({
+    id: id,
+    title: data[id].config.title,
+    qCount: data[id].questions.length,
+    rCount: data[id].results.length
+  }));
+  res.json(list);
 });
 
-// --- データベース初期化 ---
-db.serialize(() => {
-    db.run(`CREATE TABLE IF NOT EXISTS diagnosis_sets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, image_url TEXT, detail_url TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS questions (id INTEGER PRIMARY KEY AUTOINCREMENT, diagnosis_id INTEGER, question_text TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS choices (id INTEGER PRIMARY KEY AUTOINCREMENT, question_id INTEGER, choice_text TEXT, next_question_id INTEGER, label TEXT)`);
-    db.run(`CREATE TABLE IF NOT EXISTS results (id INTEGER PRIMARY KEY AUTOINCREMENT, diagnosis_id INTEGER, label TEXT, title TEXT, description TEXT, image_url TEXT, external_url TEXT, info_url TEXT)`);
+// 2. 特定の診断IDの「詳細データ」を取得（編集・診断実行用）
+app.get('/diagnosis/:id', (req, res) => {
+  const id = req.params.id;
+  if (!fs.existsSync(DATA_FILE)) return res.status(404).json({ error: "No data" });
+  
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  if (data[id]) {
+    res.json(data[id]);
+  } else {
+    res.status(404).json({ error: "Diagnosis not found" });
+  }
 });
 
-// --- 🌟 パスワード確認窓口 ---
-app.all('/api/verify-password', (req, res) => {
-    try {
-        // req.body が undefined の場合に備えて保護を追加
-        const password = (req.body && req.body.password) || (req.query && req.query.password);
-        const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin1234"; 
-        
-        // ブラウザで直接開いた（GET）場合の案内
-        if (req.method === 'GET' && !password) {
-            return res.send("✅ パスワード確認窓口は正常に動作しています。VercelからPOST送信してください。");
-        }
+// 3. 診断データを保存（新規・上書き共通）
+app.post('/save-diagnosis', (req, res) => {
+  const { id, config, questions, results } = req.body;
+  if (!id) return res.status(400).json({ error: "ID is required" });
 
-        if (password === ADMIN_PASSWORD) {
-            return res.json({ success: true });
-        } else {
-            return res.status(401).json({ success: false, message: "パスワード不一致" });
-        }
-    } catch (error) {
-        console.error("Auth error:", error);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
-});
-// その他のAPI（省略していますが、元のコードのままでOKです）
-app.get('/api/diagnoses', (req, res) => {
-    db.all("SELECT * FROM diagnosis_sets", [], (err, rows) => res.json(rows || []));
+  let allData = {};
+  if (fs.existsSync(DATA_FILE)) {
+    allData = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  }
+
+  // IDをキーにして保存（既存のIDなら上書きされる）
+  allData[id] = { config, questions, results };
+
+  fs.writeFileSync(DATA_FILE, JSON.stringify(allData, null, 2));
+  res.json({ message: "Saved successfully", id: id });
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// 4. 診断を削除
+app.delete('/diagnosis/:id', (req, res) => {
+  const id = req.params.id;
+  if (!fs.existsSync(DATA_FILE)) return res.status(404).json({ error: "No data" });
+
+  const data = JSON.parse(fs.readFileSync(DATA_FILE, 'utf-8'));
+  delete data[id];
+  fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+  res.json({ message: "Deleted successfully" });
+});
+
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});

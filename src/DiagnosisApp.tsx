@@ -1,137 +1,144 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Loader2, ChevronRight, MessageCircle, ExternalLink, RefreshCcw } from 'lucide-react';
 
-const QuestionChoices = ({ questionId, onSelect }: { questionId: number, onSelect: any }) => {
-  const [choices, setChoices] = useState([]);
+const App = () => {
+  const [loading, setLoading] = useState(true);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [currentId, setCurrentId] = useState('Q1'); // 最初の質問はQ1から
+  const [diagnosisData, setDiagnosisData] = useState(null);
+  const [showResult, setShowResult] = useState(false);
+  const API_URL = import.meta.env.VITE_API_BASE;
+
+  // 1. データの読み込み
   useEffect(() => {
-    fetch(`https://diagnosis-app-final.onrender.com/api/questions/${questionId}/choices`)
-      .then(res => res.json())
-      .then(setChoices);
-  }, [questionId]);
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-      {choices.map((c: any) => (
-        <button key={c.id} onClick={() => onSelect(c.next_question_id, c.label)} style={{ padding: '15px', border: '2px solid #ff8e8e', borderRadius: '10px', backgroundColor: '#fff', cursor: 'pointer' }}>
-          {c.choice_text}
-        </button>
-      ))}
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${API_URL}/all-data`);
+        const data = await res.json();
+        setDiagnosisData(data);
+      } catch (err) {
+        console.error("データ取得エラー:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-blue-50">
+      <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
     </div>
   );
-};
 
-export default function DiagnosisApp() {
-  const { id } = useParams();
-  const [diagnosisInfo, setDiagnosisInfo] = useState<any>(null);
-  const [currentQuestionId, setCurrentQuestionId] = useState<number | null>(null);
-  const [history, setHistory] = useState<any[]>([]);
-  const [result, setResult] = useState<any>(null);
-  const [isCalculating, setIsCalculating] = useState(false);
-useEffect(() => {
-  // すべての診断リストを取得しに行く
-  fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses`)
-    .then(res => {
-      if (!res.ok) throw new Error('Network response was not ok');
-      return res.json();
-    })
-    .then(data => {
-      if (Array.isArray(data) && data.length > 0) {
-        // IDが一致するもの、なければ最初の1つを選択
-        const selected = id ? data.find((d: any) => d.id === parseInt(id)) || data[0] : data[0];
-        setDiagnosisInfo(selected);
-        // 🌟 ここでセットされた時点で diagnosisInfo が null ではなくなるため、
-        // 下の方にある if (!diagnosisInfo) return ... の「読み込み中」が解除されます。
-      } else {
-        // データが空の場合も解除しないと「読み込み中」のままになるため、仮データをセット
-        setDiagnosisInfo({ name: "診断データがありません", description: "管理画面で作成してください" });
-      }
-    })
-    .catch(err => {
-      console.error("Fetch error:", err);
-      // 🌟 エラーが起きた時も「読み込み中」のままにならないよう、エラー表示用データをセット
-      setDiagnosisInfo({ name: "読み込みエラー", description: "サーバーからデータを取得できませんでした" });
-    });
-}, [id]);
-const startDiagnosis = () => {
-  if (!diagnosisInfo) return;
-  fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/questions`)
-    .then(res => {
-      if (!res.ok) throw new Error('Network response was not ok');
-      return res.text().then(text => text ? JSON.parse(text) : []);
-    })
-    .then(data => {
-      if (data && data.length > 0) {
-        setCurrentQuestionId(data[0].id);
-      }
-    })
-    .catch(err => console.error("Start diagnosis error:", err));
-};
-  const onSelectChoice = (nextId: number, label: string) => {
-    const newHistory = [...history, label];
-    setHistory(newHistory);
-    if (nextId) {
-      setCurrentQuestionId(nextId);
+  const { config, questions, results } = diagnosisData || {};
+
+  // 2. 回答時のロジック（分岐と5秒ぐるぐる）
+  const handleAnswer = (targetId) => {
+    if (targetId.startsWith('R')) {
+      // 結果ID（R1など）に飛ぶ場合：5秒間の解析演出
+      setAnalyzing(true);
+      setTimeout(() => {
+        setAnalyzing(false);
+        setCurrentId(targetId);
+        setShowResult(true);
+      }, (config?.loadingSeconds || 5) * 1000);
     } else {
-      setIsCalculating(true);
-      setCurrentQuestionId(null);
-      const counts: any = {};
-      newHistory.forEach(l => { counts[l] = (counts[l] || 0) + 1; });
-      const finalLabel = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-    console.log("診断結果を取得するURL:", `https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/results/${finalLabel}`);  
-      // 結果取得
-      fetch(`https://diagnosis-app-final.onrender.com/api/diagnoses/${diagnosisInfo.id}/results/${finalLabel}`)
-        .then(res => {
-          if(!res.ok) throw new Error("結果が見つかりません");
-          return res.json();
-        })
-        .then(data => {
-          setTimeout(() => { setResult(data); setIsCalculating(false); }, 2000);
-        })
-        .catch(() => {
-          alert("診断結果(ラベル: " + finalLabel + ")が登録されていないようです。管理画面を確認してください。");
-          setIsCalculating(false);
-          window.location.reload();
-        });
+      // 次の質問（Q2など）に飛ぶ場合
+      setCurrentId(targetId);
     }
   };
 
-  if (!diagnosisInfo) return <div style={{ textAlign: 'center', marginTop: '50px' }}>読み込み中...</div>;
+  // 現在表示すべきデータを見つける
+  const currentQuestion = questions?.find((_, idx) => `Q${idx + 1}` === currentId);
+  const currentResult = results?.find((_, idx) => `R${idx + 1}` === currentId);
 
-  if (isCalculating) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="loader" style={{ border: '4px solid #f3f3f3', borderTop: '4px solid #ff8e8e', borderRadius: '50%', width: '40px', height: '40px', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }}></div>
-          <h2 style={{ color: '#ff8e8e' }}>解析中...</h2>
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+  // --- 解析中（ぐるぐる）の画面 ---
+  if (analyzing) return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white p-6">
+      <div className="relative w-24 h-24 mb-6">
+        <Loader2 className="w-24 h-24 animate-spin text-blue-600" />
+        <div className="absolute inset-0 flex items-center justify-center font-bold text-blue-600">
+          Analysis
         </div>
       </div>
-    );
-  }
-
-  if (result) {
-    return (
-// 診断結果表示部分などの div スタイル
-<div style={{ padding: '20px', textAlign: 'center', backgroundColor: '#fff', minHeight: '100vh', color: '#333' }}>
-      <h1>{result.result_title}</h1>
-        <p style={{ whiteSpace: 'pre-wrap', textAlign: 'left' }}>{result.result_description}</p>
-        <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '5px' }}>最初に戻る</button>
-      </div>
-    );
-  }
-
-  if (currentQuestionId) {
-    return (
-      <div style={{ padding: '20px', maxWidth: '500px', margin: '0 auto' }}>
-        <QuestionChoices questionId={currentQuestionId} onSelect={onSelectChoice} />
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ padding: '40px', textAlign: 'center' }}>
-      <h1>{diagnosisInfo.name}</h1>
-      <p>{diagnosisInfo.description}</p>
-      <button onClick={startDiagnosis} style={{ padding: '20px 40px', background: '#ff8e8e', color: '#fff', border: 'none', borderRadius: '50px' }}>診断をはじめる</button>
+      <h2 className="text-2xl font-bold text-gray-800 animate-pulse">回答を解析中...</h2>
+      <p className="text-gray-500 mt-2">あなたに最適な結果を導き出しています</p>
     </div>
   );
-}
+
+  // --- 結果画面 ---
+  if (showResult && currentResult) return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-500">
+        {currentResult.imageUrl && (
+          <img src={currentResult.imageUrl} alt="結果画像" className="w-full h-64 object-cover" />
+        )}
+        <div className="p-8 text-center">
+          <span className="text-blue-600 font-bold text-sm tracking-widest uppercase">診断結果</span>
+          <h1 className="text-3xl font-black text-gray-900 mt-2 mb-4">{currentResult.title}</h1>
+          <p className="text-gray-600 leading-relaxed mb-8 text-left whitespace-pre-wrap">
+            {currentResult.description}
+          </p>
+          
+          <div className="space-y-4">
+            {currentResult.lineUrl && (
+              <a href={currentResult.lineUrl} target="_blank" className="flex items-center justify-center gap-2 bg-[#06C755] text-white font-bold py-4 rounded-2xl hover:opacity-90 transition-all shadow-lg">
+                <MessageCircle className="w-5 h-5" /> LINEで詳しく相談する
+              </a>
+            )}
+            {currentResult.detailUrl && (
+              <a href={currentResult.detailUrl} target="_blank" className="flex items-center justify-center gap-2 bg-blue-600 text-white font-bold py-4 rounded-2xl hover:bg-blue-700 transition-all shadow-lg">
+                詳しく見る <ExternalLink className="w-5 h-5" />
+              </a>
+            )}
+            <button onClick={() => window.location.reload()} className="flex items-center justify-center gap-2 text-gray-400 text-sm mt-4 mx-auto hover:text-gray-600">
+              <RefreshCcw className="w-4 h-4" /> もう一度診断する
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // --- 質問画面 ---
+  return (
+    <div className="min-h-screen bg-blue-600 flex items-center justify-center p-4">
+      <div className="max-w-lg w-full">
+        <div className="text-center mb-10 text-white">
+          <h2 className="text-4xl font-black mb-2 tracking-tighter italic">{config?.title}</h2>
+          <div className="h-1 w-20 bg-yellow-400 mx-auto rounded-full"></div>
+        </div>
+        
+        <div className="bg-white rounded-[2rem] shadow-2xl p-10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 text-blue-100 font-black text-6xl select-none">
+            {currentId}
+          </div>
+          
+          <p className="text-2xl font-bold text-gray-800 mb-10 relative z-10 leading-snug">
+            {currentQuestion?.text || "質問が設定されていません"}
+          </p>
+          
+          <div className="grid grid-cols-1 gap-4">
+            <button 
+              onClick={() => handleAnswer(currentQuestion?.yesTarget)}
+              className="group flex justify-between items-center bg-blue-50 hover:bg-blue-600 hover:text-white p-6 rounded-2xl border-2 border-blue-100 transition-all duration-300"
+            >
+              <span className="text-xl font-black italic">はい</span>
+              <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            </button>
+            <button 
+              onClick={() => handleAnswer(currentQuestion?.noTarget)}
+              className="group flex justify-between items-center bg-pink-50 hover:bg-pink-600 hover:text-white p-6 rounded-2xl border-2 border-pink-100 transition-all duration-300"
+            >
+              <span className="text-xl font-black italic">いいえ</span>
+              <ChevronRight className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default App;

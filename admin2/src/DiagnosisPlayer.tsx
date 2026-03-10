@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 // @ts-ignore
 const API_BASE = import.meta.env.VITE_API_BASE || "";
+
 const DiagnosisPlayer: React.FC = () => {
   const { id } = useParams<{ id: string }>(); 
   const [questions, setQuestions] = useState<any[]>([]);
